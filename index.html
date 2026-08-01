@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tailor Pro</title>
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#0F766E">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <div id="app">
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-page="home">
+        <span class="nav-icon">🏠</span>
+        Home
+      </button>
+      <button class="nav-item" data-page="customers">
+        <span class="nav-icon">👥</span>
+        Customers
+      </button>
+      <button class="nav-item" data-page="orders">
+        <span class="nav-icon">📋</span>
+        Orders
+      </button>
+      <button class="nav-item" data-page="payments">
+        <span class="nav-icon">💰</span>
+        Payments
+      </button>
+      <button class="nav-item" data-page="settings">
+        <span class="nav-icon">⚙️</span>
+        Settings
+      </button>
+    </nav>
+
+    <!-- Page Containers -->
+    <div id="page-home" class="page active"></div>
+    <div id="page-customers" class="page"></div>
+    <div id="page-orders" class="page"></div>
+    <div id="page-payments" class="page"></div>
+    <div id="page-settings" class="page"></div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/utils.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/modals.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/customers.js"></script>
+  <script src="js/orders.js"></script>
+  <script src="js/payments.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then(reg => console.log('Service Worker registered', reg))
+          .catch(err => console.error('Service Worker registration failed', err));
+      });
+    }
+  </script>
+</body>
+</html>
