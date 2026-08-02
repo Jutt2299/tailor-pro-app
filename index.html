@@ -7,11 +7,63 @@
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#0F766E">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/auth.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <div id="app">
+  <!-- Authentication Screen -->
+  <div id="auth-screen" class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-logo">✂️</div>
+        <h2>Tailor Pro</h2>
+        <p>Login or create a free account</p>
+      </div>
+      
+      <!-- Tabs -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-target="login">Login</button>
+        <button class="auth-tab" data-target="register">Register</button>
+      </div>
+      
+      <!-- Login Form -->
+      <form id="form-login" class="auth-form active">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="login-email" class="form-control" placeholder="your@email.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full mt-2" id="btn-login">Login</button>
+      </form>
+      
+      <!-- Register Form -->
+      <form id="form-register" class="auth-form hidden">
+        <div class="form-group">
+          <label class="form-label">Shop Name</label>
+          <input type="text" id="reg-shop" class="form-control" placeholder="My Tailor Shop" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="tel" id="reg-phone" class="form-control" placeholder="03xx-xxxxxxx" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="reg-email" class="form-control" placeholder="your@email.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="reg-password" class="form-control" placeholder="Min 6 characters" minlength="6" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full mt-2" id="btn-register">Create Account</button>
+      </form>
+    </div>
+  </div>
 
+  <div id="app" class="hidden">
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
       <button class="nav-item active" data-page="home">
@@ -46,8 +98,11 @@
   </div>
 
   <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/db.js"></script>
+  <script src="js/sync.js"></script>
   <script src="js/modals.js"></script>
   <script src="js/dashboard.js"></script>
   <script src="js/customers.js"></script>

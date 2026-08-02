@@ -1,0 +1,52 @@
+
+/* ── Authentication Screen ────────────────────────────────── */
+.auth-container {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 1000;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: var(--sp-5);
+}
+.auth-container.hidden { display: none !important; }
+.auth-card {
+  background: var(--surface);
+  width: 100%; max-width: 400px;
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+.auth-header {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: #fff;
+  padding: var(--sp-6) var(--sp-5);
+  text-align: center;
+}
+.auth-logo {
+  font-size: 2.5rem; margin-bottom: var(--sp-2);
+}
+.auth-header h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+.auth-header p { font-size: 0.85rem; opacity: 0.9; }
+
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-light);
+}
+.auth-tab {
+  flex: 1; padding: var(--sp-4);
+  border: none; background: none;
+  font-family: inherit; font-size: 0.9rem; font-weight: 600;
+  color: var(--text-3); cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--t-fast);
+}
+.auth-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.auth-form {
+  padding: var(--sp-5);
+  display: none;
+}
+.auth-form.active { display: block; }

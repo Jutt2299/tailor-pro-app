@@ -69,4 +69,5 @@ const App = (() => {
 // Boot the app
 document.addEventListener('DOMContentLoaded', () => {
   App.init();
+  if (window.Auth) Auth.init();
 });

@@ -110,8 +110,16 @@ const Settings = (() => {
           <div class="settings-item danger" id="settings-clear">
             <div class="settings-item-icon">🗑️</div>
             <div class="settings-item-body">
-              <div class="settings-item-label">Clear All Data</div>
-              <div class="settings-item-desc">Delete all customers and orders permanently</div>
+              <div class="settings-item-label">Clear Local Data</div>
+              <div class="settings-item-desc">Clear data from this device only</div>
+            </div>
+            <span class="settings-item-arrow">›</span>
+          </div>
+          <div class="settings-item danger" id="settings-logout">
+            <div class="settings-item-icon">🚪</div>
+            <div class="settings-item-body">
+              <div class="settings-item-label">Logout</div>
+              <div class="settings-item-desc">Sign out of your Tailor account</div>
             </div>
             <span class="settings-item-arrow">›</span>
           </div>
@@ -130,6 +138,9 @@ const Settings = (() => {
     });
     document.getElementById('settings-file-input').addEventListener('change', importBackup);
     document.getElementById('settings-clear').addEventListener('click', clearAllData);
+    document.getElementById('settings-logout').addEventListener('click', () => {
+      if (window.Auth) Auth.logout();
+    });
   }
 
   function saveShopSettings() {
