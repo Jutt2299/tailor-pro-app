@@ -276,7 +276,10 @@ const Auth = (() => {
 
   /* ── Profile Sync ─────────────────────────────────────────── */
   async function _fetchProfile() {
-    if (!currentUser || !supabase) return;
+    if (!currentUser || !supabase) {
+      if (window.App) App.refreshCurrentPage();
+      return;
+    }
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -293,10 +296,13 @@ const Auth = (() => {
           address:     data.address       || local.address,
           thankYouMsg: data.thank_you_msg || local.thankYouMsg
         });
-        if (window.App) App.refreshCurrentPage();
       }
     } catch (err) {
       console.warn('[Auth] fetchProfile error:', err);
+    } finally {
+      // ALWAYS refresh the UI after auth check completes
+      // This fixes the "blank home page until tab switched" glitch
+      if (window.App) App.refreshCurrentPage();
     }
   }
 
