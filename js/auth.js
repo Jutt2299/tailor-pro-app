@@ -38,12 +38,12 @@ const Auth = (() => {
 
       document.querySelectorAll('.auth-form').forEach(f => {
         f.classList.remove('active');
-        f.style.setProperty('display', 'none', 'important');
+        f.style.display = 'none';
       });
       const form = document.getElementById('form-' + target);
       if (form) {
         form.classList.add('active');
-        form.style.setProperty('display', 'block', 'important');
+        form.style.display = 'block';
       }
     };
 
