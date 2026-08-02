@@ -107,10 +107,22 @@ const Auth = (() => {
       if (lookupError || !lookupData) {
         Utils.toast(
           window.I18n && I18n.getLang() === 'ur'
-            ? 'یہ فون نمبر رجسٹرڈ نہیں۔ پہلے رجسٹر کریں۔'
-            : 'Phone number not found. Please register first.',
-          'error'
+            ? 'یہ فون نمبر رجسٹرڈ نہیں — پہلے رجسٹر کریں'
+            : '⚠️ Phone not registered — switching to Register form',
+          'warning'
         );
+
+        // Auto-switch to Register tab and pre-fill phone number
+        setTimeout(() => {
+          document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+          document.getElementById('tab-register').classList.add('active');
+          document.getElementById('form-register').classList.add('active');
+          // Pre-fill phone number so user doesn't have to type again
+          const regPhone = document.getElementById('reg-phone');
+          if (regPhone) regPhone.value = phone;
+        }, 1000);
+
         btn.textContent = loginText;
         btn.disabled = false;
         return;
