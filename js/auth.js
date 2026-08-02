@@ -73,29 +73,10 @@ const Auth = (() => {
   }
 
   /* ── Form Setup ───────────────────────────────────────────── */
+  /* ── Form Setup ───────────────────────────────────────────── */
   function _setupForms() {
-    const loginForm    = document.getElementById('form-login');
-    const registerForm = document.getElementById('form-register');
-
-    if (loginForm) {
-      loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        _doLogin();
-        return false;
-      });
-    }
-
-    if (registerForm) {
-      registerForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        _doRegister();
-        return false;
-      });
-    }
-
-    // Also expose as globals (in case onsubmit="" in HTML is used)
+    // Note: Form submit listeners are now handled inline in index.html
+    // This avoids double execution and dependency loading issues
     window.handleLogin    = _doLogin;
     window.handleRegister = _doRegister;
   }

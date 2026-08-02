@@ -58,7 +58,7 @@
       </div>
       
       <!-- Login Form -->
-      <form id="form-login" class="auth-form active">
+      <form id="login-form-new" class="auth-form active">
         <div class="form-group">
           <label class="form-label" id="lbl-login-phone">Phone Number</label>
           <input type="tel" id="login-phone" class="form-control" placeholder="03xx-xxxxxxx" required>
@@ -71,7 +71,7 @@
       </form>
       
       <!-- Register Form -->
-      <form id="form-register" class="auth-form">
+      <form id="register-form-new" class="auth-form">
         <div class="form-group">
           <label class="form-label" id="lbl-shopname">Shop Name</label>
           <input type="text" id="reg-shop" class="form-control" placeholder="My Tailor Shop" required>
@@ -179,6 +179,18 @@
       document.getElementById('install-banner-btn')?.addEventListener('click', triggerInstall);
       document.getElementById('install-fab')?.addEventListener('click', triggerInstall);
 
+      // ── INSTANT AUTH CHECK (bypass auth.js if cached) ──
+      try {
+        const tokenStr = localStorage.getItem('sb-malyhkiumfplkkwdvnab-auth-token');
+        if (tokenStr) {
+          const tokenData = JSON.parse(tokenStr);
+          if (tokenData && tokenData.access_token) {
+            document.getElementById('auth-screen')?.classList.add('hidden');
+            document.getElementById('app')?.classList.remove('hidden');
+          }
+        }
+      } catch(e) {}
+
       // ── SHARED SUPABASE CLIENT (single instance, no conflict) ──
       const SB_URL = 'https://malyhkiumfplkkwdvnab.supabase.co';
       const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1hbHloa2l1bWZwbGtrd2R2bmFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2NjI5ODQsImV4cCI6MjEwMTIzODk4NH0.Kr95uaGZB1CFwJEzvpx-D-NhqeRWY3twurV-fytaQTw';
@@ -189,11 +201,10 @@
       }
 
       // ── LOGIN FORM ──────────────────────────────────────────────
-      const loginForm = document.getElementById('form-login');
+      const loginForm = document.getElementById('login-form-new');
       if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
           e.preventDefault();
-          e.stopPropagation();
 
           const sb = getSB();
           if (!sb) { alert('Supabase load nahi hua. Page refresh karein.'); return; }
@@ -240,11 +251,10 @@
       }
 
       // ── REGISTER FORM ───────────────────────────────────────────
-      const regForm = document.getElementById('form-register');
+      const regForm = document.getElementById('register-form-new');
       if (regForm) {
         regForm.addEventListener('submit', async (e) => {
           e.preventDefault();
-          e.stopPropagation();
 
           const sb = getSB();
           if (!sb) { alert('Supabase load nahi hua. Page refresh karein.'); return; }
