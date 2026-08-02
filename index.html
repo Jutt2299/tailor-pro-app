@@ -199,9 +199,15 @@
           // If auth.js already defined handleRegister, use it
           if (window.handleRegister) { window.handleRegister(); return; }
 
-          // Otherwise run directly here as last-resort fallback
-          const sb = window.Config && Config.supabase;
-          if (!sb) { alert('Error: Supabase not loaded. Refresh the page.'); return; }
+          // Initialize Supabase directly (bypasses Config.supabase caching issues)
+          if (!window.supabase) {
+            alert('Error: Supabase CDN not loaded. Check internet connection and refresh.');
+            return;
+          }
+
+          const SUPABASE_URL = 'https://malyhkiumfplkkwdvnab.supabase.co';
+          const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1hbHloa2l1bWZwbGtrd2R2bmFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2NjI5ODQsImV4cCI6MjEwMTIzODk4NH0.Kr95uaGZB1CFwJEzvpx-D-NhqeRWY3twurV-fytaQTw';
+          const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
           const btn      = document.getElementById('btn-register');
           const origText = btn ? btn.textContent : 'Create Account';
@@ -217,8 +223,6 @@
               alert('Sab fields bharen!'); return;
             }
 
-            alert('📡 Supabase signUp call...\nEmail: ' + email);
-
             const { data, error } = await sb.auth.signUp({
               email, password,
               options: { data: { shop_name: shopName, phone } }
@@ -226,15 +230,21 @@
 
             if (error) { alert('❌ SignUp Error:\n' + error.message); return; }
 
-            alert('✅ User created!\nSession: ' + (data.session ? 'YES' : 'NO'));
-
             // Save phone lookup
-            const { error: e2 } = await sb.from('phone_lookup').insert({ phone, email });
-            if (e2) { alert('⚠️ phone_lookup insert failed:\n' + JSON.stringify(e2)); }
-            else { alert('✅ Phone saved!'); }
+            await sb.from('phone_lookup').insert({ phone, email });
+
+            if (data.session) {
+              // Logged in! Reload to trigger auth state change
+              window.location.reload();
+            } else {
+              alert('✅ Account ban gaya!\nAb Login tab mein phone aur password dal kar login karein.');
+              window.switchTab && window.switchTab('login');
+              const lp = document.getElementById('login-phone');
+              if (lp) lp.value = phone;
+            }
 
           } catch(err) {
-            alert('CRASH: ' + err.message);
+            alert('Error: ' + err.message);
           } finally {
             if (btn) { btn.textContent = origText; btn.disabled = false; }
           }
