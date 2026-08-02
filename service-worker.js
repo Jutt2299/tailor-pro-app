@@ -1,19 +1,8 @@
-const CACHE_NAME = 'tailor-pro-v8';
+const CACHE_NAME = 'tailor-pro-v9';
+
+// Only cache static assets that NEVER change (images, fonts)
+// Do NOT cache JS/CSS/HTML so updates always reach users
 const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  './css/style.css',
-  './js/utils.js',
-  './js/config.js',
-  './js/auth.js',
-  './js/db.js',
-  './js/modals.js',
-  './js/dashboard.js',
-  './js/customers.js',
-  './js/orders.js',
-  './js/payments.js',
-  './js/settings.js',
-  './js/app.js',
   'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
 ];
@@ -23,43 +12,47 @@ self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(ASSETS_TO_CACHE);
+      return cache.addAll(ASSETS_TO_CACHE).catch(() => {});
     })
   );
 });
 
-// Fetch Event - Network first, fallback to cache for robustness
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // If valid response, clone and cache it
-        if (response && response.status === 200 && response.type === 'basic') {
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, responseToCache);
-          });
-        }
-        return response;
-      })
-      .catch(() => {
-        // Fallback to cache if network fails (offline mode)
-        return caches.match(event.request);
-      })
-  );
-});
-
-// Activate Event - Clean up old caches
+// Activate Event - Clean up old caches immediately
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
-        cacheNames.map(cache => {
-          if (cache !== CACHE_NAME) {
-            return caches.delete(cache);
-          }
-        })
+        cacheNames.map(cache => caches.delete(cache))
       );
     }).then(() => self.clients.claim())
+  );
+});
+
+// Fetch Event - NETWORK FIRST always for JS/CSS/HTML
+// Only use cache for truly offline fallback of non-code assets
+self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+
+  // For same-origin JS, CSS, HTML files: always go to network, never cache
+  if (url.origin === location.origin) {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return caches.match(event.request);
+      })
+    );
+    return;
+  }
+
+  // For external CDN assets: cache first
+  event.respondWith(
+    caches.match(event.request).then(cached => {
+      return cached || fetch(event.request).then(response => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
+        return response;
+      });
+    })
   );
 });

@@ -8,6 +8,23 @@ const Auth = (() => {
   const supabase = Config.supabase;
   let currentUser = null;
 
+  // ── Define switchTab IMMEDIATELY so onclick="" in HTML works instantly ──
+  window.switchTab = function(target) {
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    const tab = document.getElementById('tab-' + target);
+    if (tab) tab.classList.add('active');
+
+    document.querySelectorAll('.auth-form').forEach(f => {
+      f.classList.remove('active');
+      f.style.display = 'none';
+    });
+    const form = document.getElementById('form-' + target);
+    if (form) {
+      form.classList.add('active');
+      form.style.display = 'block';
+    }
+  };
+
   /* ── Public init ──────────────────────────────────────────── */
   function init() {
     applyAuthTranslations();
