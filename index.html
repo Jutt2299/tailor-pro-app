@@ -10,6 +10,29 @@
   <link rel="stylesheet" href="css/auth.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- KILL SWITCH: Force clear old service worker and cache on every update -->
+  <script>
+    (function() {
+      var BUILD = 'v10-2026-08-02';
+      if (localStorage.getItem('app_build') !== BUILD) {
+        localStorage.setItem('app_build', BUILD);
+        // Unregister ALL old service workers
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(regs) {
+            regs.forEach(function(reg) { reg.unregister(); });
+          });
+        }
+        // Delete ALL caches
+        if ('caches' in window) {
+          caches.keys().then(function(names) {
+            names.forEach(function(name) { caches.delete(name); });
+          });
+        }
+        // Reload once to get fresh files
+        setTimeout(function() { window.location.reload(true); }, 300);
+      }
+    })();
+  </script>
 </head>
 <body>
   <!-- Authentication Screen -->
