@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Supabase Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <h2>Supabase Register Test</h2>
+  <button id="btn-test" onclick="doTest()">Click to Test Registration</button>
+  <pre id="output" style="background:#111;color:#0f0;padding:20px;margin-top:20px;white-space:pre-wrap;"></pre>
+
+  <script>
+    const log = (msg) => {
+      document.getElementById('output').textContent += msg + '\n';
+      console.log(msg);
+    };
+
+    const SUPABASE_URL = 'https://malyhkiumfplkkwdvnab.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1hbHloa2l1bWZwbGtrd2R2bmFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2NjI5ODQsImV4cCI6MjEwMTIzODk4NH0.Kr95uaGZB1CFwJEzvpx-D-NhqeRWY3twurV-fytaQTw';
+
+    log('Loading Supabase...');
+    
+    let sb;
+    try {
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      log('✅ Supabase client created!');
+    } catch(e) {
+      log('❌ Supabase client FAILED: ' + e.message);
+    }
+
+    async function doTest() {
+      document.getElementById('btn-test').disabled = true;
+      log('\n--- Starting Test ---');
+      
+      // Test 1: Can we reach Supabase?
+      log('Test 1: Checking Supabase connection...');
+      try {
+        const { data, error } = await sb.from('phone_lookup').select('phone').limit(1);
+        if (error) {
+          log('❌ Database Error: ' + JSON.stringify(error));
+        } else {
+          log('✅ Database connected! Rows: ' + JSON.stringify(data));
+        }
+      } catch(e) {
+        log('❌ Network Error: ' + e.message);
+      }
+
+      // Test 2: Try signup
+      log('\nTest 2: Trying signup with test email...');
+      const testEmail = 'testuser_' + Date.now() + '@gmail.com';
+      const testPass = 'Test1234!';
+      try {
+        const { data, error } = await sb.auth.signUp({
+          email: testEmail,
+          password: testPass
+        });
+        if (error) {
+          log('❌ SignUp Error: ' + JSON.stringify(error));
+        } else {
+          log('✅ SignUp SUCCESS! User: ' + JSON.stringify(data.user?.email));
+          log('Session: ' + (data.session ? 'YES ✅' : 'NO (confirm email required)'));
+        }
+      } catch(e) {
+        log('❌ SignUp Crash: ' + e.message);
+      }
+
+      document.getElementById('btn-test').disabled = false;
+      log('\n--- Test Complete ---');
+    }
+
+    window.onload = () => {
+      if (!window.supabase) {
+        log('❌ CRITICAL: Supabase script not loaded - likely blocked by network!');
+      } else {
+        log('✅ Supabase script loaded!');
+      }
+    };
+  </script>
+</body>
+</html>
