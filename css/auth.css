@@ -76,9 +76,9 @@
 
 .auth-form {
   padding: var(--sp-5);
-  display: none;
+  display: none !important;
 }
-.auth-form.active { display: block; }
+.auth-form.active { display: block !important; }
 
 /* ── Install FAB (Floating Action Button) inside app ──────── */
 .install-fab {

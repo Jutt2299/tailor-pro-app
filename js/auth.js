@@ -72,13 +72,15 @@ const Auth = (() => {
     // Tab switching
     document.querySelectorAll('.auth-tab').forEach(tab => {
       tab.addEventListener('click', (e) => {
+        const target = e.currentTarget.dataset.target;
+
+        // Switch active tab
         document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active', 'hidden'));
-        document.querySelectorAll('.auth-form').forEach(f => f.classList.add('hidden'));
-        
-        e.target.classList.add('active');
-        document.getElementById(`form-${e.target.dataset.target}`).classList.remove('hidden');
-        document.getElementById(`form-${e.target.dataset.target}`).classList.add('active');
+        e.currentTarget.classList.add('active');
+
+        // Switch active form
+        document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+        document.getElementById(`form-${target}`).classList.add('active');
       });
     });
 
