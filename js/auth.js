@@ -147,12 +147,12 @@ const Auth = (() => {
         .single();
 
       if (lookupErr || !lookup) {
-        _showToast('⚠️ Phone not registered — Register tab kholte hain', 'warning');
+        alert('❌ Phone not registered in our system!\n\nYeh phone number phone_lookup table mein nahi mila.\nPehle Register karein.');
         setTimeout(() => {
           window.switchTab('register');
           const regPhone = document.getElementById('reg-phone');
           if (regPhone) regPhone.value = phone;
-        }, 1000);
+        }, 500);
         return;
       }
 
@@ -163,7 +163,7 @@ const Auth = (() => {
       });
 
       if (error) {
-        _showToast('Password galat hai. Dobara try karein.', 'error');
+        alert('❌ Login Failed: ' + error.message);
       }
       // success handled by onAuthStateChange
     } catch (err) {
