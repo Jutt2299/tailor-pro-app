@@ -7,6 +7,7 @@
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   padding: var(--sp-5);
+  overflow-y: auto;
 }
 .auth-container.hidden { display: none !important; }
 .auth-card {
@@ -28,6 +29,34 @@
 .auth-header h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
 .auth-header p { font-size: 0.85rem; opacity: 0.9; }
 
+/* Install Banner on Auth Screen */
+.install-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #0D9488, #0F766E);
+  color: #fff;
+  padding: 10px 16px;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+.install-banner.hidden { display: none !important; }
+.install-banner span:first-child { font-size: 1.2rem; }
+.install-banner span:nth-child(2) { flex: 1; }
+.install-banner-btn {
+  background: #fff;
+  color: var(--primary);
+  border: none;
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Auth Tabs */
 .auth-tabs {
   display: flex;
   border-bottom: 1px solid var(--border-light);
@@ -50,3 +79,52 @@
   display: none;
 }
 .auth-form.active { display: block; }
+
+/* ── Install FAB (Floating Action Button) inside app ──────── */
+.install-fab {
+  position: fixed;
+  bottom: calc(var(--nav-height) + 16px);
+  right: 16px;
+  z-index: 100;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 10px 18px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: 0 4px 20px rgba(15, 118, 110, 0.45);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: pulse-install 2s ease-in-out infinite;
+}
+.install-fab.hidden { display: none !important; }
+
+@keyframes pulse-install {
+  0%, 100% { box-shadow: 0 4px 20px rgba(15, 118, 110, 0.45); }
+  50%       { box-shadow: 0 6px 28px rgba(15, 118, 110, 0.7); }
+}
+
+/* ── RTL Support for Urdu ─────────────────────────────────── */
+[dir="rtl"] .install-fab {
+  right: auto;
+  left: 16px;
+}
+[dir="rtl"] .auth-card,
+[dir="rtl"] .auth-form,
+[dir="rtl"] .form-label,
+[dir="rtl"] .form-group {
+  text-align: right;
+}
+[dir="rtl"] .bottom-nav {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] .settings-item {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] .settings-item-arrow {
+  transform: scaleX(-1);
+}

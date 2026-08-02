@@ -9,6 +9,8 @@ const Auth = (() => {
   let currentUser = null;
 
   function init() {
+    applyAuthTranslations();
+
     // Check initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       handleSession(session);
@@ -20,6 +22,29 @@ const Auth = (() => {
     });
 
     bindUIEvents();
+  }
+
+  function applyAuthTranslations() {
+    if (!window.I18n) return;
+    const el = (id) => document.getElementById(id);
+    const setText = (id, key) => { if (el(id)) el(id).textContent = I18n.t(key); };
+
+    setText('auth-tagline', 'appTagline');
+    setText('tab-login', 'loginTab');
+    setText('tab-register', 'registerTab');
+    setText('lbl-email', 'emailLabel');
+    setText('lbl-email2', 'emailLabel');
+    setText('lbl-password', 'passwordLabel');
+    setText('lbl-password2', 'passwordLabel');
+    setText('lbl-shopname', 'shopNameLabel');
+    setText('lbl-phone', 'phoneLabel');
+    setText('btn-login', 'loginBtn');
+    setText('btn-register', 'registerBtn');
+    setText('install-banner-text', 'installDesc');
+    setText('install-fab-text', 'installApp');
+
+    const shopInput = document.getElementById('reg-shop');
+    if (shopInput) shopInput.placeholder = I18n.t('shopNamePlaceholder');
   }
 
   function handleSession(session) {
@@ -142,5 +167,5 @@ const Auth = (() => {
     await supabase.auth.signOut();
   }
 
-  return { init, logout, getUser: () => currentUser };
+  return { init, logout, getUser: () => currentUser, applyAuthTranslations };
 })();

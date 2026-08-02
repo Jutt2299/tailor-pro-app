@@ -59,7 +59,23 @@ const Settings = (() => {
             <input class="form-control" id="s-thank-you" type="text" value="${Utils.esc(settings.thankYouMsg || '')}" placeholder="Thank you for your business!">
           </div>
           <div style="padding:0 16px 16px">
-            <button class="btn btn-primary btn-full" id="settings-save-btn">💾 Save Settings</button>
+            <button class="btn btn-primary btn-full" id="settings-save-btn">💾 ${I18n.t('saveSettings')}</button>
+          </div>
+        </div>
+
+        <!-- Language Settings -->
+        <div class="settings-group">
+          <div class="settings-group-title">${I18n.t('language')}</div>
+          <div style="padding:12px 16px 16px">
+            <label class="form-label">${I18n.t('languageSelect')}</label>
+            <div class="lang-toggle">
+              <button class="lang-btn ${I18n.getLang() === 'en' ? 'active' : ''}" data-lang="en">
+                🇬🇧 English
+              </button>
+              <button class="lang-btn ${I18n.getLang() === 'ur' ? 'active' : ''}" data-lang="ur">
+                🇵🇰 اردو
+              </button>
+            </div>
           </div>
         </div>
 
@@ -140,6 +156,19 @@ const Settings = (() => {
     document.getElementById('settings-clear').addEventListener('click', clearAllData);
     document.getElementById('settings-logout').addEventListener('click', () => {
       if (window.Auth) Auth.logout();
+    });
+
+    // Language switcher
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const lang = btn.dataset.lang;
+        I18n.setLang(lang);
+        // Re-render the settings page and update nav labels
+        render();
+        if (window.App) App.updateNavLabels();
+        if (window.Auth) Auth.applyAuthTranslations && Auth.applyAuthTranslations();
+        Utils.toast(lang === 'ur' ? 'زبان تبدیل ہو گئی!' : 'Language changed!', 'success');
+      });
     });
   }
 

@@ -18,23 +18,30 @@
       <div class="auth-header">
         <div class="auth-logo">✂️</div>
         <h2>Tailor Pro</h2>
-        <p>Login or create a free account</p>
+        <p id="auth-tagline">Login or create a free account</p>
+      </div>
+
+      <!-- Install App Banner (shown in browser) -->
+      <div id="install-banner" class="install-banner hidden">
+        <span>📲</span>
+        <span id="install-banner-text">Install this app on your phone!</span>
+        <button id="install-banner-btn" class="install-banner-btn">Install</button>
       </div>
       
       <!-- Tabs -->
       <div class="auth-tabs">
-        <button class="auth-tab active" data-target="login">Login</button>
-        <button class="auth-tab" data-target="register">Register</button>
+        <button class="auth-tab active" data-target="login" id="tab-login">Login</button>
+        <button class="auth-tab" data-target="register" id="tab-register">Register</button>
       </div>
       
       <!-- Login Form -->
       <form id="form-login" class="auth-form active">
         <div class="form-group">
-          <label class="form-label">Email</label>
+          <label class="form-label" id="lbl-email">Email</label>
           <input type="email" id="login-email" class="form-control" placeholder="your@email.com" required>
         </div>
         <div class="form-group">
-          <label class="form-label">Password</label>
+          <label class="form-label" id="lbl-password">Password</label>
           <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
         </div>
         <button type="submit" class="btn btn-primary btn-full mt-2" id="btn-login">Login</button>
@@ -43,19 +50,19 @@
       <!-- Register Form -->
       <form id="form-register" class="auth-form hidden">
         <div class="form-group">
-          <label class="form-label">Shop Name</label>
+          <label class="form-label" id="lbl-shopname">Shop Name</label>
           <input type="text" id="reg-shop" class="form-control" placeholder="My Tailor Shop" required>
         </div>
         <div class="form-group">
-          <label class="form-label">Phone Number</label>
+          <label class="form-label" id="lbl-phone">Phone Number</label>
           <input type="tel" id="reg-phone" class="form-control" placeholder="03xx-xxxxxxx" required>
         </div>
         <div class="form-group">
-          <label class="form-label">Email</label>
+          <label class="form-label" id="lbl-email2">Email</label>
           <input type="email" id="reg-email" class="form-control" placeholder="your@email.com" required>
         </div>
         <div class="form-group">
-          <label class="form-label">Password</label>
+          <label class="form-label" id="lbl-password2">Password</label>
           <input type="password" id="reg-password" class="form-control" placeholder="Min 6 characters" minlength="6" required>
         </div>
         <button type="submit" class="btn btn-primary btn-full mt-2" id="btn-register">Create Account</button>
@@ -64,27 +71,32 @@
   </div>
 
   <div id="app" class="hidden">
+    <!-- Install App Floating Button (shown in browser after login) -->
+    <button id="install-fab" class="install-fab hidden" title="Install App">
+      📲 <span id="install-fab-text">Install App</span>
+    </button>
+
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
       <button class="nav-item active" data-page="home">
         <span class="nav-icon">🏠</span>
-        Home
+        <span class="nav-label" data-i18n="navHome">Home</span>
       </button>
       <button class="nav-item" data-page="customers">
         <span class="nav-icon">👥</span>
-        Customers
+        <span class="nav-label" data-i18n="navCustomers">Customers</span>
       </button>
       <button class="nav-item" data-page="orders">
         <span class="nav-icon">📋</span>
-        Orders
+        <span class="nav-label" data-i18n="navOrders">Orders</span>
       </button>
       <button class="nav-item" data-page="payments">
         <span class="nav-icon">💰</span>
-        Payments
+        <span class="nav-label" data-i18n="navPayments">Payments</span>
       </button>
       <button class="nav-item" data-page="settings">
         <span class="nav-icon">⚙️</span>
-        Settings
+        <span class="nav-label" data-i18n="navSettings">Settings</span>
       </button>
     </nav>
 
@@ -97,7 +109,8 @@
 
   </div>
 
-  <!-- Scripts -->
+  <!-- Scripts – i18n must load first -->
+  <script src="js/i18n.js"></script>
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/utils.js"></script>
@@ -111,6 +124,40 @@
   <script src="js/settings.js"></script>
   <script src="js/app.js"></script>
   <script>
+    // PWA Install Prompt Logic
+    let deferredPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+
+      // Show install banner on auth screen
+      const banner = document.getElementById('install-banner');
+      if (banner) banner.classList.remove('hidden');
+
+      // Show install FAB inside app
+      const fab = document.getElementById('install-fab');
+      if (fab) fab.classList.remove('hidden');
+    });
+
+    function triggerInstall() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          document.getElementById('install-banner')?.classList.add('hidden');
+          document.getElementById('install-fab')?.classList.add('hidden');
+        }
+        deferredPrompt = null;
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('install-banner-btn')?.addEventListener('click', triggerInstall);
+      document.getElementById('install-fab')?.addEventListener('click', triggerInstall);
+    });
+
+    // Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./service-worker.js')

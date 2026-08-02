@@ -1164,3 +1164,37 @@ select.form-control { cursor: pointer; }
   .modal-overlay { position: static; background: none; }
   .modal-sheet { max-height: none; border-radius: 0; }
 }
+
+/* ── Language Toggle ─────────────────────────────────────────── */
+.lang-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+.lang-btn {
+  padding: 10px 12px;
+  border: 2px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: all var(--t-fast);
+}
+.lang-btn.active {
+  border-color: var(--primary);
+  background: var(--accent-light);
+  color: var(--primary);
+}
+.lang-btn:hover:not(.active) {
+  border-color: var(--primary-light);
+  color: var(--primary);
+}
+
+/* ── Urdu Font Support ───────────────────────────────────────── */
+[dir="rtl"] body {
+  font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', 'Poppins', sans-serif;
+}

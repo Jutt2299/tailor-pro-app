@@ -63,7 +63,14 @@ const App = (() => {
     }
   }
 
-  return { init, navigate, refreshCurrentPage };
+  function updateNavLabels() {
+    if (!window.I18n) return;
+    document.querySelectorAll('.nav-label[data-i18n]').forEach(el => {
+      el.textContent = I18n.t(el.dataset.i18n);
+    });
+  }
+
+  return { init, navigate, refreshCurrentPage, updateNavLabels };
 })();
 
 // Boot the app
