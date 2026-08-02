@@ -24,6 +24,23 @@ const Auth = (() => {
     bindUIEvents();
   }
 
+  // Fallback global tab switcher
+  window.switchTab = function(target) {
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    const tab = document.getElementById(`tab-${target}`);
+    if (tab) tab.classList.add('active');
+
+    document.querySelectorAll('.auth-form').forEach(f => {
+      f.classList.remove('active');
+      f.style.display = 'none'; // Force hide inline
+    });
+    const targetForm = document.getElementById(`form-${target}`);
+    if (targetForm) {
+      targetForm.classList.add('active');
+      targetForm.style.display = 'block'; // Force show inline
+    }
+  };
+
   function applyAuthTranslations() {
     if (!window.I18n) return;
     const el = (id) => document.getElementById(id);
@@ -69,18 +86,10 @@ const Auth = (() => {
   }
 
   function bindUIEvents() {
-    // Tab switching
+    // Tab switching (keeps existing logic but uses switchTab to guarantee it works)
     document.querySelectorAll('.auth-tab').forEach(tab => {
       tab.addEventListener('click', (e) => {
-        const target = e.currentTarget.dataset.target;
-
-        // Switch active tab
-        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-        e.currentTarget.classList.add('active');
-
-        // Switch active form
-        document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-        document.getElementById(`form-${target}`).classList.add('active');
+        window.switchTab(e.currentTarget.dataset.target);
       });
     });
 
