@@ -11,6 +11,13 @@ const Auth = (() => {
   function init() {
     applyAuthTranslations();
 
+    if (!supabase) {
+      console.error("Auth init aborted: Supabase not found");
+      // Still bind UI so tabs work, but disable forms
+      bindUIEvents();
+      return;
+    }
+
     // Check initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       handleSession(session);
@@ -96,6 +103,11 @@ const Auth = (() => {
     // ── LOGIN FORM (Phone Number + Password) ──────────────────
     document.getElementById('form-login').addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (!supabase) {
+        alert("Error: App is blocked from connecting to internet. Please disable ad-blockers and refresh.");
+        return;
+      }
+      
       const btn = document.getElementById('btn-login');
       const loggingInText = window.I18n ? I18n.t('loggingIn') : 'Logging in...';
       const loginText = window.I18n ? I18n.t('loginBtn') : 'Login';
@@ -160,6 +172,11 @@ const Auth = (() => {
     // ── REGISTER FORM ─────────────────────────────────────────
     document.getElementById('form-register').addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (!supabase) {
+        alert("Error: App is blocked from connecting to internet. Please disable ad-blockers and refresh.");
+        return;
+      }
+
       const btn = document.getElementById('btn-register');
       const creatingText = window.I18n ? I18n.t('creatingAccount') : 'Creating account...';
       const registerText = window.I18n ? I18n.t('registerBtn') : 'Create Account';
