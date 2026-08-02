@@ -32,12 +32,12 @@ const Auth = (() => {
     setText('auth-tagline', 'appTagline');
     setText('tab-login', 'loginTab');
     setText('tab-register', 'registerTab');
-    setText('lbl-email', 'emailLabel');
-    setText('lbl-email2', 'emailLabel');
+    setText('lbl-login-phone', 'phoneLabel');
     setText('lbl-password', 'passwordLabel');
     setText('lbl-password2', 'passwordLabel');
     setText('lbl-shopname', 'shopNameLabel');
-    setText('lbl-phone', 'phoneLabel');
+    setText('lbl-reg-phone', 'phoneLabel');
+    setText('lbl-email2', 'emailLabel');
     setText('btn-login', 'loginBtn');
     setText('btn-register', 'registerBtn');
     setText('install-banner-text', 'installDesc');
@@ -82,42 +82,93 @@ const Auth = (() => {
       });
     });
 
-    // Login Form
+    // ── LOGIN FORM (Phone Number + Password) ──────────────────
     document.getElementById('form-login').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('btn-login');
-      btn.textContent = 'Logging in...';
+      const loggingInText = window.I18n ? I18n.t('loggingIn') : 'Logging in...';
+      const loginText = window.I18n ? I18n.t('loginBtn') : 'Login';
+
+      btn.textContent = loggingInText;
       btn.disabled = true;
 
-      const email = document.getElementById('login-email').value.trim();
+      const phone    = document.getElementById('login-phone').value.trim();
       const password = document.getElementById('login-password').value;
 
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      
-      if (error) {
-        Utils.toast(error.message, 'error');
-        btn.textContent = 'Login';
+      // Step 1: Look up email by phone number
+      const { data: lookupData, error: lookupError } = await supabase
+        .from('phone_lookup')
+        .select('email')
+        .eq('phone', phone)
+        .single();
+
+      if (lookupError || !lookupData) {
+        Utils.toast(
+          window.I18n && I18n.getLang() === 'ur'
+            ? 'یہ فون نمبر رجسٹرڈ نہیں۔ پہلے رجسٹر کریں۔'
+            : 'Phone number not found. Please register first.',
+          'error'
+        );
+        btn.textContent = loginText;
         btn.disabled = false;
-      } else {
-        // App handles redirect via onAuthStateChange
-        btn.textContent = 'Login';
-        btn.disabled = false;
-        Utils.toast('Welcome back!', 'success');
+        return;
       }
+
+      // Step 2: Login with found email + password
+      const { error } = await supabase.auth.signInWithPassword({
+        email: lookupData.email,
+        password
+      });
+      
+      btn.textContent = loginText;
+      btn.disabled = false;
+
+      if (error) {
+        Utils.toast(
+          window.I18n && I18n.getLang() === 'ur'
+            ? 'پاس ورڈ غلط ہے۔ دوبارہ کوشش کریں۔'
+            : 'Wrong password. Please try again.',
+          'error'
+        );
+      }
+      // Success is handled automatically by onAuthStateChange
     });
 
-    // Register Form
+    // ── REGISTER FORM ─────────────────────────────────────────
     document.getElementById('form-register').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('btn-register');
-      btn.textContent = 'Creating account...';
+      const creatingText = window.I18n ? I18n.t('creatingAccount') : 'Creating account...';
+      const registerText = window.I18n ? I18n.t('registerBtn') : 'Create Account';
+
+      btn.textContent = creatingText;
       btn.disabled = true;
 
       const shopName = document.getElementById('reg-shop').value.trim();
-      const phone = document.getElementById('reg-phone').value.trim();
-      const email = document.getElementById('reg-email').value.trim();
+      const phone    = document.getElementById('reg-phone').value.trim();
+      const email    = document.getElementById('reg-email').value.trim();
       const password = document.getElementById('reg-password').value;
 
+      // Step 1: Check if phone already registered
+      const { data: existingPhone } = await supabase
+        .from('phone_lookup')
+        .select('phone')
+        .eq('phone', phone)
+        .single();
+
+      if (existingPhone) {
+        Utils.toast(
+          window.I18n && I18n.getLang() === 'ur'
+            ? 'یہ فون نمبر پہلے سے رجسٹرڈ ہے۔'
+            : 'This phone number is already registered.',
+          'error'
+        );
+        btn.textContent = registerText;
+        btn.disabled = false;
+        return;
+      }
+
+      // Step 2: Create account in Supabase Auth
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -126,17 +177,31 @@ const Auth = (() => {
         }
       });
       
-      btn.textContent = 'Create Account';
+      btn.textContent = registerText;
       btn.disabled = false;
 
       if (error) {
         Utils.toast(error.message, 'error');
+        return;
+      }
+
+      // Step 3: Save phone → email mapping in phone_lookup table
+      await supabase.from('phone_lookup').insert({ phone, email });
+
+      if (data.session) {
+        Utils.toast(
+          window.I18n && I18n.getLang() === 'ur'
+            ? 'اکاؤنٹ کامیابی سے بن گیا!'
+            : 'Account created successfully!',
+          'success'
+        );
       } else {
-        if (data.session) {
-          Utils.toast('Account created successfully!', 'success');
-        } else {
-          Utils.toast('Check your email to verify your account.', 'info');
-        }
+        Utils.toast(
+          window.I18n && I18n.getLang() === 'ur'
+            ? 'ای میل چیک کریں اور اکاؤنٹ تصدیق کریں۔'
+            : 'Check your email to verify your account.',
+          'info'
+        );
       }
     });
   }
@@ -151,13 +216,12 @@ const Auth = (() => {
       
     if (data && !error) {
       const localSettings = DB.getSettings();
-      // Only overwrite local settings if cloud has data
       DB.saveSettings({
-        shopName: data.shop_name || localSettings.shopName,
-        ownerName: data.owner_name || localSettings.ownerName,
-        phone: data.phone || localSettings.phone,
-        address: data.address || localSettings.address,
-        thankYouMsg: data.thank_you_msg || localSettings.thankYouMsg
+        shopName:    data.shop_name    || localSettings.shopName,
+        ownerName:   data.owner_name   || localSettings.ownerName,
+        phone:       data.phone        || localSettings.phone,
+        address:     data.address      || localSettings.address,
+        thankYouMsg: data.thank_you_msg|| localSettings.thankYouMsg
       });
       if (window.App) App.refreshCurrentPage();
     }
