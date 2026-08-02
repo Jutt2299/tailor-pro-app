@@ -167,7 +167,8 @@ const Auth = (() => {
       btn.textContent = creatingText;
       btn.disabled = true;
 
-      const shopName = document.getElementById('reg-shop').value.trim();
+      try {
+        const shopName = document.getElementById('reg-shop').value.trim();
       const phone    = document.getElementById('reg-phone').value.trim();
       const email    = document.getElementById('reg-email').value.trim();
       const password = document.getElementById('reg-password').value;
@@ -211,20 +212,26 @@ const Auth = (() => {
       // Step 3: Save phone → email mapping in phone_lookup table
       await supabase.from('phone_lookup').insert({ phone, email });
 
-      if (data.session) {
-        Utils.toast(
-          window.I18n && I18n.getLang() === 'ur'
-            ? 'اکاؤنٹ کامیابی سے بن گیا!'
-            : 'Account created successfully!',
-          'success'
-        );
-      } else {
-        Utils.toast(
-          window.I18n && I18n.getLang() === 'ur'
-            ? 'ای میل چیک کریں اور اکاؤنٹ تصدیق کریں۔'
-            : 'Check your email to verify your account.',
-          'info'
-        );
+        if (data.session) {
+          Utils.toast(
+            window.I18n && I18n.getLang() === 'ur'
+              ? 'اکاؤنٹ کامیابی سے بن گیا!'
+              : 'Account created successfully!',
+            'success'
+          );
+        } else {
+          Utils.toast(
+            window.I18n && I18n.getLang() === 'ur'
+              ? 'ای میل چیک کریں اور اکاؤنٹ تصدیق کریں۔'
+              : 'Check your email to verify your account.',
+            'info'
+          );
+        }
+      } catch (err) {
+        console.error("Registration crash:", err);
+        alert("Registration Error: " + err.message);
+        btn.textContent = registerText;
+        btn.disabled = false;
       }
     });
   }
