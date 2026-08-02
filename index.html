@@ -178,6 +178,68 @@
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('install-banner-btn')?.addEventListener('click', triggerInstall);
       document.getElementById('install-fab')?.addEventListener('click', triggerInstall);
+
+      // ── DIRECT FORM HANDLERS (fallback if auth.js not loaded) ──
+      const loginForm = document.getElementById('form-login');
+      const regForm   = document.getElementById('form-register');
+
+      if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          if (window.handleLogin) { window.handleLogin(); }
+          else if (window.Auth) { /* handled by auth.js */ }
+        });
+      }
+
+      if (regForm) {
+        regForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          // If auth.js already defined handleRegister, use it
+          if (window.handleRegister) { window.handleRegister(); return; }
+
+          // Otherwise run directly here as last-resort fallback
+          const sb = window.Config && Config.supabase;
+          if (!sb) { alert('Error: Supabase not loaded. Refresh the page.'); return; }
+
+          const btn      = document.getElementById('btn-register');
+          const origText = btn ? btn.textContent : 'Create Account';
+          if (btn) { btn.textContent = 'Creating...'; btn.disabled = true; }
+
+          try {
+            const shopName = (document.getElementById('reg-shop')?.value || '').trim();
+            const phone    = (document.getElementById('reg-phone')?.value || '').trim();
+            const email    = (document.getElementById('reg-email')?.value || '').trim();
+            const password = document.getElementById('reg-password')?.value || '';
+
+            if (!shopName || !phone || !email || !password) {
+              alert('Sab fields bharen!'); return;
+            }
+
+            alert('📡 Supabase signUp call...\nEmail: ' + email);
+
+            const { data, error } = await sb.auth.signUp({
+              email, password,
+              options: { data: { shop_name: shopName, phone } }
+            });
+
+            if (error) { alert('❌ SignUp Error:\n' + error.message); return; }
+
+            alert('✅ User created!\nSession: ' + (data.session ? 'YES' : 'NO'));
+
+            // Save phone lookup
+            const { error: e2 } = await sb.from('phone_lookup').insert({ phone, email });
+            if (e2) { alert('⚠️ phone_lookup insert failed:\n' + JSON.stringify(e2)); }
+            else { alert('✅ Phone saved!'); }
+
+          } catch(err) {
+            alert('CRASH: ' + err.message);
+          } finally {
+            if (btn) { btn.textContent = origText; btn.disabled = false; }
+          }
+        });
+      }
     });
 
     // Service Worker
