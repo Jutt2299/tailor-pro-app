@@ -198,18 +198,24 @@ const Auth = (() => {
       }
 
       // Step 1: Check if phone already registered
-      const { data: existing } = await supabase
+      const { data: existing, error: checkErr } = await supabase
         .from('phone_lookup')
         .select('phone')
         .eq('phone', phone)
-        .maybeSingle();   // maybeSingle() won't throw error if no row found
+        .maybeSingle();
+
+      if (checkErr) {
+        alert('❌ DB Error checking phone:\n' + JSON.stringify(checkErr));
+        return;
+      }
 
       if (existing) {
-        _showToast('Yeh phone number pehle se registered hai.', 'error');
+        alert('❌ Yeh phone number pehle se registered hai.\nDosra phone number use karein.');
         return;
       }
 
       // Step 2: Create account
+      alert('📡 Step 2: Supabase signUp call kar raha hoon...');
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -217,9 +223,11 @@ const Auth = (() => {
       });
 
       if (error) {
-        _showToast('Registration Error: ' + error.message, 'error');
+        alert('❌ SignUp Error:\n' + error.message + '\n\nCode: ' + error.status);
         return;
       }
+
+      alert('✅ SignUp SUCCESS!\nUser: ' + (data.user?.email || 'unknown') + '\nSession: ' + (data.session ? 'YES' : 'NO - email confirm required'));
 
       // Step 3: Save phone → email mapping
       const { error: insertErr } = await supabase
@@ -227,7 +235,9 @@ const Auth = (() => {
         .insert({ phone, email });
 
       if (insertErr) {
-        console.error('[Auth] phone_lookup insert error:', insertErr);
+        alert('⚠️ phone_lookup insert error:\n' + JSON.stringify(insertErr));
+      } else {
+        alert('✅ Phone saved to phone_lookup!');
       }
 
       if (data.session) {
@@ -244,7 +254,7 @@ const Auth = (() => {
       }
     } catch (err) {
       console.error('[Auth] Register crash:', err);
-      alert('Registration Error: ' + err.message);
+      alert('Registration CRASH: ' + err.message);
     } finally {
       if (btn) { btn.textContent = origText; btn.disabled = false; }
     }
