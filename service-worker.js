@@ -1,9 +1,11 @@
-const CACHE_NAME = 'tailor-pro-v4';
+const CACHE_NAME = 'tailor-pro-v5';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './css/style.css',
   './js/utils.js',
+  './js/config.js',
+  './js/auth.js',
   './js/db.js',
   './js/modals.js',
   './js/dashboard.js',
