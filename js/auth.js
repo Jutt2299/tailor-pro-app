@@ -1,5 +1,5 @@
 /* ============================================================
-   auth.js – Supabase Authentication
+   auth.js – Supabase Authentication (Clean Rewrite)
    ============================================================ */
 
 'use strict';
@@ -8,274 +8,293 @@ const Auth = (() => {
   const supabase = Config.supabase;
   let currentUser = null;
 
+  /* ── Public init ──────────────────────────────────────────── */
   function init() {
     applyAuthTranslations();
+    _setupTabSwitching();
+    _setupForms();
 
     if (!supabase) {
-      console.error("Auth init aborted: Supabase not found");
-      // Still bind UI so tabs work, but disable forms
-      bindUIEvents();
+      console.error('[Auth] Supabase not available');
       return;
     }
 
-    // Check initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      handleSession(session);
+      _handleSession(session);
     });
 
-    // Listen for auth changes
     supabase.auth.onAuthStateChange((_event, session) => {
-      handleSession(session);
+      _handleSession(session);
     });
-
-    bindUIEvents();
   }
 
-  // Fallback global tab switcher
-  window.switchTab = function(target) {
-    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-    const tab = document.getElementById(`tab-${target}`);
-    if (tab) tab.classList.add('active');
+  /* ── Tab Switching ────────────────────────────────────────── */
+  function _setupTabSwitching() {
+    // Global function so onclick="" in HTML can also call it
+    window.switchTab = function(target) {
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+      const tab = document.getElementById('tab-' + target);
+      if (tab) tab.classList.add('active');
 
-    document.querySelectorAll('.auth-form').forEach(f => {
-      f.classList.remove('active');
-      f.style.display = 'none'; // Force hide inline
-    });
-    const targetForm = document.getElementById(`form-${target}`);
-    if (targetForm) {
-      targetForm.classList.add('active');
-      targetForm.style.display = 'block'; // Force show inline
-    }
-  };
+      document.querySelectorAll('.auth-form').forEach(f => {
+        f.classList.remove('active');
+        f.style.display = 'none';
+      });
+      const form = document.getElementById('form-' + target);
+      if (form) {
+        form.classList.add('active');
+        form.style.display = 'block';
+      }
+    };
 
-  function applyAuthTranslations() {
-    if (!window.I18n) return;
-    const el = (id) => document.getElementById(id);
-    const setText = (id, key) => { if (el(id)) el(id).textContent = I18n.t(key); };
-
-    setText('auth-tagline', 'appTagline');
-    setText('tab-login', 'loginTab');
-    setText('tab-register', 'registerTab');
-    setText('lbl-login-phone', 'phoneLabel');
-    setText('lbl-password', 'passwordLabel');
-    setText('lbl-password2', 'passwordLabel');
-    setText('lbl-shopname', 'shopNameLabel');
-    setText('lbl-reg-phone', 'phoneLabel');
-    setText('lbl-email2', 'emailLabel');
-    setText('btn-login', 'loginBtn');
-    setText('btn-register', 'registerBtn');
-    setText('install-banner-text', 'installDesc');
-    setText('install-fab-text', 'installApp');
-
-    const shopInput = document.getElementById('reg-shop');
-    if (shopInput) shopInput.placeholder = I18n.t('shopNamePlaceholder');
-  }
-
-  function handleSession(session) {
-    const authScreen = document.getElementById('auth-screen');
-    const appScreen = document.getElementById('app');
-    
-    if (session && session.user) {
-      currentUser = session.user;
-      authScreen.classList.add('hidden');
-      appScreen.classList.remove('hidden');
-      
-      // Initialize Sync engine now that we have a user
-      if (window.Sync) Sync.init();
-      
-      // Also fetch and update local profile settings if needed
-      fetchProfile();
-    } else {
-      currentUser = null;
-      authScreen.classList.remove('hidden');
-      appScreen.classList.add('hidden');
-    }
-  }
-
-  function bindUIEvents() {
-    // Tab switching (keeps existing logic but uses switchTab to guarantee it works)
+    // Also bind click events
     document.querySelectorAll('.auth-tab').forEach(tab => {
-      tab.addEventListener('click', (e) => {
-        window.switchTab(e.currentTarget.dataset.target);
+      tab.addEventListener('click', () => {
+        window.switchTab(tab.dataset.target);
       });
     });
+  }
 
-    // ── LOGIN FORM (Phone Number + Password) ──────────────────
-    document.getElementById('form-login').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!supabase) {
-        alert("Error: App is blocked from connecting to internet. Please disable ad-blockers and refresh.");
+  /* ── Form Setup ───────────────────────────────────────────── */
+  function _setupForms() {
+    const loginForm    = document.getElementById('form-login');
+    const registerForm = document.getElementById('form-register');
+
+    if (loginForm) {
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        _doLogin();
+        return false;
+      });
+    }
+
+    if (registerForm) {
+      registerForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        _doRegister();
+        return false;
+      });
+    }
+
+    // Also expose as globals (in case onsubmit="" in HTML is used)
+    window.handleLogin    = _doLogin;
+    window.handleRegister = _doRegister;
+  }
+
+  /* ── Session Handler ──────────────────────────────────────── */
+  function _handleSession(session) {
+    const authScreen = document.getElementById('auth-screen');
+    const appScreen  = document.getElementById('app');
+
+    if (session && session.user) {
+      currentUser = session.user;
+      if (authScreen) authScreen.classList.add('hidden');
+      if (appScreen)  appScreen.classList.remove('hidden');
+      if (window.Sync) Sync.init();
+      _fetchProfile();
+    } else {
+      currentUser = null;
+      if (authScreen) authScreen.classList.remove('hidden');
+      if (appScreen)  appScreen.classList.add('hidden');
+    }
+  }
+
+  /* ── Login ────────────────────────────────────────────────── */
+  async function _doLogin() {
+    if (!supabase) {
+      alert('Connection Error: Supabase not loaded. Please refresh the page.');
+      return;
+    }
+
+    const btn      = document.getElementById('btn-login');
+    const origText = btn ? btn.textContent : 'Login';
+
+    if (btn) { btn.textContent = 'Logging in...'; btn.disabled = true; }
+
+    try {
+      const phone    = (document.getElementById('login-phone')?.value || '').trim();
+      const password = document.getElementById('login-password')?.value || '';
+
+      if (!phone || !password) {
+        _showToast('Phone number aur password daalein.', 'error');
         return;
       }
-      
-      const btn = document.getElementById('btn-login');
-      const loggingInText = window.I18n ? I18n.t('loggingIn') : 'Logging in...';
-      const loginText = window.I18n ? I18n.t('loginBtn') : 'Login';
 
-      btn.textContent = loggingInText;
-      btn.disabled = true;
-
-      const phone    = document.getElementById('login-phone').value.trim();
-      const password = document.getElementById('login-password').value;
-
-      // Step 1: Look up email by phone number
-      const { data: lookupData, error: lookupError } = await supabase
+      // Step 1: Look up email by phone
+      const { data: lookup, error: lookupErr } = await supabase
         .from('phone_lookup')
         .select('email')
         .eq('phone', phone)
         .single();
 
-      if (lookupError || !lookupData) {
-        Utils.toast(
-          window.I18n && I18n.getLang() === 'ur'
-            ? 'یہ فون نمبر رجسٹرڈ نہیں — پہلے رجسٹر کریں'
-            : '⚠️ Phone not registered — switching to Register form',
-          'warning'
-        );
-
-        // Auto-switch to Register tab and pre-fill phone number
+      if (lookupErr || !lookup) {
+        _showToast('⚠️ Phone not registered — Register tab kholte hain', 'warning');
         setTimeout(() => {
-          document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-          document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-          document.getElementById('tab-register').classList.add('active');
-          document.getElementById('form-register').classList.add('active');
-          // Pre-fill phone number so user doesn't have to type again
+          window.switchTab('register');
           const regPhone = document.getElementById('reg-phone');
           if (regPhone) regPhone.value = phone;
         }, 1000);
-
-        btn.textContent = loginText;
-        btn.disabled = false;
         return;
       }
 
-      // Step 2: Login with found email + password
+      // Step 2: Sign in
       const { error } = await supabase.auth.signInWithPassword({
-        email: lookupData.email,
+        email: lookup.email,
         password
       });
-      
-      btn.textContent = loginText;
-      btn.disabled = false;
 
       if (error) {
-        Utils.toast(
-          window.I18n && I18n.getLang() === 'ur'
-            ? 'پاس ورڈ غلط ہے۔ دوبارہ کوشش کریں۔'
-            : 'Wrong password. Please try again.',
-          'error'
-        );
+        _showToast('Password galat hai. Dobara try karein.', 'error');
       }
-      // Success is handled automatically by onAuthStateChange
-    });
-
-    // ── REGISTER FORM ─────────────────────────────────────────
-    document.getElementById('form-register').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!supabase) {
-        alert("Error: App is blocked from connecting to internet. Please disable ad-blockers and refresh.");
-        return;
-      }
-
-      const btn = document.getElementById('btn-register');
-      const creatingText = window.I18n ? I18n.t('creatingAccount') : 'Creating account...';
-      const registerText = window.I18n ? I18n.t('registerBtn') : 'Create Account';
-
-      btn.textContent = creatingText;
-      btn.disabled = true;
-
-      try {
-        const shopName = document.getElementById('reg-shop').value.trim();
-      const phone    = document.getElementById('reg-phone').value.trim();
-      const email    = document.getElementById('reg-email').value.trim();
-      const password = document.getElementById('reg-password').value;
-
-      // Step 1: Check if phone already registered
-      const { data: existingPhone } = await supabase
-        .from('phone_lookup')
-        .select('phone')
-        .eq('phone', phone)
-        .single();
-
-      if (existingPhone) {
-        Utils.toast(
-          window.I18n && I18n.getLang() === 'ur'
-            ? 'یہ فون نمبر پہلے سے رجسٹرڈ ہے۔'
-            : 'This phone number is already registered.',
-          'error'
-        );
-        btn.textContent = registerText;
-        btn.disabled = false;
-        return;
-      }
-
-      // Step 2: Create account in Supabase Auth
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { shop_name: shopName, phone: phone }
-        }
-      });
-      
-      btn.textContent = registerText;
-      btn.disabled = false;
-
-      if (error) {
-        Utils.toast(error.message, 'error');
-        return;
-      }
-
-      // Step 3: Save phone → email mapping in phone_lookup table
-      await supabase.from('phone_lookup').insert({ phone, email });
-
-        if (data.session) {
-          Utils.toast(
-            window.I18n && I18n.getLang() === 'ur'
-              ? 'اکاؤنٹ کامیابی سے بن گیا!'
-              : 'Account created successfully!',
-            'success'
-          );
-        } else {
-          Utils.toast(
-            window.I18n && I18n.getLang() === 'ur'
-              ? 'ای میل چیک کریں اور اکاؤنٹ تصدیق کریں۔'
-              : 'Check your email to verify your account.',
-            'info'
-          );
-        }
-      } catch (err) {
-        console.error("Registration crash:", err);
-        alert("Registration Error: " + err.message);
-        btn.textContent = registerText;
-        btn.disabled = false;
-      }
-    });
-  }
-
-  async function fetchProfile() {
-    if (!currentUser) return;
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', currentUser.id)
-      .single();
-      
-    if (data && !error) {
-      const localSettings = DB.getSettings();
-      DB.saveSettings({
-        shopName:    data.shop_name    || localSettings.shopName,
-        ownerName:   data.owner_name   || localSettings.ownerName,
-        phone:       data.phone        || localSettings.phone,
-        address:     data.address      || localSettings.address,
-        thankYouMsg: data.thank_you_msg|| localSettings.thankYouMsg
-      });
-      if (window.App) App.refreshCurrentPage();
+      // success handled by onAuthStateChange
+    } catch (err) {
+      console.error('[Auth] Login crash:', err);
+      alert('Login Error: ' + err.message);
+    } finally {
+      if (btn) { btn.textContent = origText; btn.disabled = false; }
     }
   }
 
+  /* ── Register ─────────────────────────────────────────────── */
+  async function _doRegister() {
+    if (!supabase) {
+      alert('Connection Error: Supabase not loaded. Please refresh the page.');
+      return;
+    }
+
+    const btn      = document.getElementById('btn-register');
+    const origText = btn ? btn.textContent : 'Create Account';
+
+    if (btn) { btn.textContent = 'Creating account...'; btn.disabled = true; }
+
+    try {
+      const shopName = (document.getElementById('reg-shop')?.value || '').trim();
+      const phone    = (document.getElementById('reg-phone')?.value || '').trim();
+      const email    = (document.getElementById('reg-email')?.value || '').trim();
+      const password = document.getElementById('reg-password')?.value || '';
+
+      if (!shopName || !phone || !email || !password) {
+        _showToast('Sab fields bhaarna zaruri hain.', 'error');
+        return;
+      }
+
+      // Step 1: Check if phone already registered
+      const { data: existing } = await supabase
+        .from('phone_lookup')
+        .select('phone')
+        .eq('phone', phone)
+        .maybeSingle();   // maybeSingle() won't throw error if no row found
+
+      if (existing) {
+        _showToast('Yeh phone number pehle se registered hai.', 'error');
+        return;
+      }
+
+      // Step 2: Create account
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { shop_name: shopName, phone } }
+      });
+
+      if (error) {
+        _showToast('Registration Error: ' + error.message, 'error');
+        return;
+      }
+
+      // Step 3: Save phone → email mapping
+      const { error: insertErr } = await supabase
+        .from('phone_lookup')
+        .insert({ phone, email });
+
+      if (insertErr) {
+        console.error('[Auth] phone_lookup insert error:', insertErr);
+      }
+
+      if (data.session) {
+        _showToast('Account successfully ban gaya! 🎉', 'success');
+        // onAuthStateChange will handle the redirect automatically
+      } else {
+        _showToast('Account ban gaya! Ab login karein.', 'info');
+        // Switch to login and pre-fill phone
+        setTimeout(() => {
+          window.switchTab('login');
+          const loginPhone = document.getElementById('login-phone');
+          if (loginPhone) loginPhone.value = phone;
+        }, 1500);
+      }
+    } catch (err) {
+      console.error('[Auth] Register crash:', err);
+      alert('Registration Error: ' + err.message);
+    } finally {
+      if (btn) { btn.textContent = origText; btn.disabled = false; }
+    }
+  }
+
+  /* ── Toast helper ─────────────────────────────────────────── */
+  function _showToast(msg, type) {
+    if (window.Utils && Utils.toast) {
+      Utils.toast(msg, type);
+    } else {
+      alert(msg);
+    }
+  }
+
+  /* ── i18n Translations ────────────────────────────────────── */
+  function applyAuthTranslations() {
+    if (!window.I18n) return;
+    const setText = (id, key) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = I18n.t(key);
+    };
+    setText('auth-tagline',       'appTagline');
+    setText('tab-login',          'loginTab');
+    setText('tab-register',       'registerTab');
+    setText('lbl-login-phone',    'phoneLabel');
+    setText('lbl-password',       'passwordLabel');
+    setText('lbl-password2',      'passwordLabel');
+    setText('lbl-shopname',       'shopNameLabel');
+    setText('lbl-reg-phone',      'phoneLabel');
+    setText('lbl-email2',         'emailLabel');
+    setText('btn-login',          'loginBtn');
+    setText('btn-register',       'registerBtn');
+    setText('install-banner-text','installDesc');
+    setText('install-fab-text',   'installApp');
+    const shopInput = document.getElementById('reg-shop');
+    if (shopInput) shopInput.placeholder = I18n.t('shopNamePlaceholder');
+  }
+
+  /* ── Profile Sync ─────────────────────────────────────────── */
+  async function _fetchProfile() {
+    if (!currentUser || !supabase) return;
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', currentUser.id)
+        .single();
+
+      if (data && !error) {
+        const local = DB.getSettings();
+        DB.saveSettings({
+          shopName:    data.shop_name     || local.shopName,
+          ownerName:   data.owner_name    || local.ownerName,
+          phone:       data.phone         || local.phone,
+          address:     data.address       || local.address,
+          thankYouMsg: data.thank_you_msg || local.thankYouMsg
+        });
+        if (window.App) App.refreshCurrentPage();
+      }
+    } catch (err) {
+      console.warn('[Auth] fetchProfile error:', err);
+    }
+  }
+
+  /* ── Logout ───────────────────────────────────────────────── */
   async function logout() {
-    await supabase.auth.signOut();
+    if (supabase) await supabase.auth.signOut();
   }
 
   return { init, logout, getUser: () => currentUser, applyAuthTranslations };
