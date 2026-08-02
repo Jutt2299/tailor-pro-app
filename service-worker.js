@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tailor-pro-v1';
+const CACHE_NAME = 'tailor-pro-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
