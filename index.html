@@ -179,35 +179,75 @@
       document.getElementById('install-banner-btn')?.addEventListener('click', triggerInstall);
       document.getElementById('install-fab')?.addEventListener('click', triggerInstall);
 
-      // ── DIRECT FORM HANDLERS (fallback if auth.js not loaded) ──
-      const loginForm = document.getElementById('form-login');
-      const regForm   = document.getElementById('form-register');
+      // ── SHARED SUPABASE CLIENT (single instance, no conflict) ──
+      const SB_URL = 'https://malyhkiumfplkkwdvnab.supabase.co';
+      const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1hbHloa2l1bWZwbGtrd2R2bmFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2NjI5ODQsImV4cCI6MjEwMTIzODk4NH0.Kr95uaGZB1CFwJEzvpx-D-NhqeRWY3twurV-fytaQTw';
+      let _sb = null;
+      function getSB() {
+        if (!_sb && window.supabase) _sb = window.supabase.createClient(SB_URL, SB_KEY);
+        return _sb;
+      }
 
+      // ── LOGIN FORM ──────────────────────────────────────────────
+      const loginForm = document.getElementById('form-login');
       if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', async (e) => {
           e.preventDefault();
-          if (window.handleLogin) { window.handleLogin(); }
-          else if (window.Auth) { /* handled by auth.js */ }
+          e.stopPropagation();
+
+          const sb = getSB();
+          if (!sb) { alert('Supabase load nahi hua. Page refresh karein.'); return; }
+
+          const btn      = document.getElementById('btn-login');
+          const origText = btn ? btn.textContent : 'Login';
+          if (btn) { btn.textContent = 'Logging in...'; btn.disabled = true; }
+
+          try {
+            const phone    = (document.getElementById('login-phone')?.value || '').trim();
+            const password = document.getElementById('login-password')?.value || '';
+
+            if (!phone || !password) { alert('Phone aur password daalein.'); return; }
+
+            // Step 1: Look up email by phone
+            const { data: lookup, error: lookupErr } = await sb
+              .from('phone_lookup').select('email').eq('phone', phone).single();
+
+            if (lookupErr || !lookup) {
+              alert('❌ Phone number registered nahi hai.\nPehle Register tab mein account banayen.');
+              window.switchTab && window.switchTab('register');
+              return;
+            }
+
+            // Step 2: Sign in with email + password
+            const { data, error } = await sb.auth.signInWithPassword({
+              email: lookup.email, password
+            });
+
+            if (error) {
+              alert('❌ Login Failed: ' + error.message);
+              return;
+            }
+
+            // Success – reload to trigger auth state
+            window.location.reload();
+
+          } catch(err) {
+            alert('Login Error: ' + err.message);
+          } finally {
+            if (btn) { btn.textContent = origText; btn.disabled = false; }
+          }
         });
       }
 
+      // ── REGISTER FORM ───────────────────────────────────────────
+      const regForm = document.getElementById('form-register');
       if (regForm) {
         regForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           e.stopPropagation();
 
-          // If auth.js already defined handleRegister, use it
-          if (window.handleRegister) { window.handleRegister(); return; }
-
-          // Initialize Supabase directly (bypasses Config.supabase caching issues)
-          if (!window.supabase) {
-            alert('Error: Supabase CDN not loaded. Check internet connection and refresh.');
-            return;
-          }
-
-          const SUPABASE_URL = 'https://malyhkiumfplkkwdvnab.supabase.co';
-          const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1hbHloa2l1bWZwbGtrd2R2bmFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2NjI5ODQsImV4cCI6MjEwMTIzODk4NH0.Kr95uaGZB1CFwJEzvpx-D-NhqeRWY3twurV-fytaQTw';
-          const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+          const sb = getSB();
+          if (!sb) { alert('Supabase load nahi hua. Page refresh karein.'); return; }
 
           const btn      = document.getElementById('btn-register');
           const origText = btn ? btn.textContent : 'Create Account';
@@ -223,28 +263,34 @@
               alert('Sab fields bharen!'); return;
             }
 
+            // Step 1: Create account
             const { data, error } = await sb.auth.signUp({
               email, password,
               options: { data: { shop_name: shopName, phone } }
             });
 
-            if (error) { alert('❌ SignUp Error:\n' + error.message); return; }
+            if (error) { alert('❌ Registration Error:\n' + error.message); return; }
 
-            // Save phone lookup
-            await sb.from('phone_lookup').insert({ phone, email });
+            // Step 2: Save phone → email mapping
+            const { error: insertErr } = await sb
+              .from('phone_lookup').insert({ phone, email });
+
+            if (insertErr) {
+              alert('⚠️ Phone save karne mein masla:\n' + insertErr.message +
+                    '\n\nPlease Supabase SQL Editor mein yeh run karein:\nINSERT INTO phone_lookup (phone, email) VALUES (\'' + phone + '\', \'' + email + '\');');
+            }
 
             if (data.session) {
-              // Logged in! Reload to trigger auth state change
               window.location.reload();
             } else {
-              alert('✅ Account ban gaya!\nAb Login tab mein phone aur password dal kar login karein.');
+              alert('✅ Account ban gaya!\nAb Login tab mein phone number aur password dal kar login karein.');
               window.switchTab && window.switchTab('login');
               const lp = document.getElementById('login-phone');
               if (lp) lp.value = phone;
             }
 
           } catch(err) {
-            alert('Error: ' + err.message);
+            alert('Registration Error: ' + err.message);
           } finally {
             if (btn) { btn.textContent = origText; btn.disabled = false; }
           }
