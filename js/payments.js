@@ -15,8 +15,8 @@ const Payments = (() => {
     page.innerHTML = `
       <div class="app-bar">
         <div>
-          <h1>💰 Payments</h1>
-          <div class="subtitle">Financial Overview</div>
+          <h1>💰 ${I18n.t('paymentsTitle')}</h1>
+          <div class="subtitle">${I18n.t('financialOverview')}</div>
         </div>
       </div>
 
@@ -24,30 +24,30 @@ const Payments = (() => {
 
         <!-- Summary Card -->
         <div class="payment-summary">
-          <div class="payment-summary-title">Total Revenue</div>
+          <div class="payment-summary-title">${I18n.t('totalRevenue')}</div>
           <div class="payment-summary-amount">${Utils.currency(stats.totalRevenue)}</div>
           <div class="payment-breakdown">
             <div class="payment-breakdown-item">
               <span class="value">${Utils.currency(stats.totalCollected)}</span>
-              <span class="label">✅ Collected</span>
+              <span class="label">✅ ${I18n.t('collected')}</span>
             </div>
             <div class="payment-breakdown-item">
               <span class="value">${Utils.currency(stats.totalPending)}</span>
-              <span class="label">⏳ Pending</span>
+              <span class="label">⏳ ${I18n.t('pending')}</span>
             </div>
             <div class="payment-breakdown-item">
               <span class="value">${getOrderCountByPayment('paid')}</span>
-              <span class="label">💚 Paid Orders</span>
+              <span class="label">💚 ${I18n.t('paidOrders')}</span>
             </div>
           </div>
         </div>
 
         <!-- Status Filter -->
         <div class="filter-tabs">
-          <button class="filter-tab active" data-pfilter="all">All</button>
-          <button class="filter-tab" data-pfilter="unpaid">🔴 Unpaid</button>
-          <button class="filter-tab" data-pfilter="partial">🟡 Partial</button>
-          <button class="filter-tab" data-pfilter="paid">💚 Paid</button>
+          <button class="filter-tab active" data-pfilter="all">${I18n.t('filterAll')}</button>
+          <button class="filter-tab" data-pfilter="unpaid">🔴 ${I18n.t('unpaid')}</button>
+          <button class="filter-tab" data-pfilter="partial">🟡 ${I18n.t('partial')}</button>
+          <button class="filter-tab" data-pfilter="paid">💚 ${I18n.t('paid')}</button>
         </div>
 
         <div id="payments-list"></div>
@@ -83,8 +83,8 @@ const Payments = (() => {
       list.innerHTML = `
         <div class="empty-state">
           <span class="empty-icon">💰</span>
-          <h3>No payment records</h3>
-          <p>${_filter !== 'all' ? 'No orders match this filter' : 'Orders will appear here once created'}</p>
+          <h3>${I18n.t('noPendingPayments')}</h3>
+          <p>${_filter !== 'all' ? I18n.t('noOrdersFilter') : I18n.t('allCaughtUp')}</p>
         </div>`;
       return;
     }
@@ -124,15 +124,15 @@ const Payments = (() => {
 
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
           <div style="background:var(--surface-2);border-radius:var(--r-sm);padding:8px;text-align:center">
-            <div style="font-size:.68rem;color:var(--text-4);margin-bottom:2px">Total</div>
+            <div style="font-size:.68rem;color:var(--text-4);margin-bottom:2px">${I18n.t('total')}</div>
             <div style="font-weight:700;font-size:.85rem">${Utils.currency(o.totalAmount)}</div>
           </div>
           <div style="background:var(--paid-bg);border-radius:var(--r-sm);padding:8px;text-align:center">
-            <div style="font-size:.68rem;color:var(--text-4);margin-bottom:2px">Paid</div>
+            <div style="font-size:.68rem;color:var(--text-4);margin-bottom:2px">${I18n.t('paid')}</div>
             <div style="font-weight:700;font-size:.85rem;color:#15803D">${Utils.currency(o.amountPaid)}</div>
           </div>
           <div style="background:${balance > 0 ? 'var(--unpaid-bg)' : 'var(--paid-bg)'};border-radius:var(--r-sm);padding:8px;text-align:center">
-            <div style="font-size:.68rem;color:var(--text-4);margin-bottom:2px">Balance</div>
+            <div style="font-size:.68rem;color:var(--text-4);margin-bottom:2px">${I18n.t('balance')}</div>
             <div style="font-weight:700;font-size:.85rem;color:${balance > 0 ? 'var(--unpaid)' : '#15803D'}">${Utils.currency(balance)}</div>
           </div>
         </div>
@@ -143,12 +143,12 @@ const Payments = (() => {
           </div>` : ''}
 
         <div style="font-size:.72rem;color:var(--text-4);margin-bottom:10px">
-          📅 Delivery: ${Utils.formatDate(o.deliveryDate)} &nbsp;|&nbsp; ${Utils.orderStatusBadgeHTML(o.status)}
+          📅 ${I18n.t('delivery')}: ${Utils.formatDate(o.deliveryDate)} &nbsp;|&nbsp; ${Utils.orderStatusBadgeHTML(o.status)}
         </div>
 
         <!-- Inline Payment Update -->
         <div id="pay-inline-${o.id}" class="hidden" style="background:var(--accent-light);border-radius:var(--r-md);padding:12px;margin-bottom:10px">
-          <label style="font-size:.78rem;font-weight:600;color:var(--primary);display:block;margin-bottom:6px">Update Amount Paid (Rs.)</label>
+          <label style="font-size:.78rem;font-weight:600;color:var(--primary);display:block;margin-bottom:6px">${I18n.t('updateAmountPaid')}</label>
           <div style="display:flex;gap:8px">
             <input type="number" id="pay-input-${o.id}" class="form-control" style="flex:1" value="${o.amountPaid}" min="0" placeholder="Enter amount">
             <button class="btn btn-primary btn-sm" onclick="Payments.savePay('${o.id}')">Save</button>
@@ -158,8 +158,8 @@ const Payments = (() => {
 
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           ${o.paymentStatus !== 'paid' ? `
-            <button class="btn btn-primary btn-sm payment-update-btn" data-order-id="${o.id}">💳 Update Payment</button>` : ''}
-          <button class="btn btn-secondary btn-sm receipt-btn" data-order-id="${o.id}">🧾 Receipt</button>
+            <button class="btn btn-primary btn-sm payment-update-btn" data-order-id="${o.id}">💳 ${I18n.t('updatePayment')}</button>` : ''}
+          <button class="btn btn-secondary btn-sm receipt-btn" data-order-id="${o.id}">🧾 ${I18n.t('receipt')}</button>
         </div>
       </div>`;
   }
@@ -174,7 +174,7 @@ const Payments = (() => {
     if (!input) return;
     const amount = parseFloat(input.value) || 0;
     DB.updateOrderPayment(orderId, amount);
-    Utils.toast('Payment updated!', 'success');
+    Utils.toast(I18n.t('paymentUpdated'), 'success');
     render();
   }
 

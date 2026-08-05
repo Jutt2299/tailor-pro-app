@@ -14,24 +14,24 @@ const Orders = (() => {
     page.innerHTML = `
       <div class="app-bar">
         <div>
-          <h1>📋 Orders</h1>
-          <div class="subtitle" id="orders-subtitle">All orders</div>
+          <h1>📋 ${I18n.t('ordersTitle')}</h1>
+          <div class="subtitle" id="orders-subtitle">${I18n.t('allOrders')}</div>
         </div>
       </div>
 
       <div class="page-content">
         <div class="search-bar">
           <span class="search-icon">🔍</span>
-          <input type="text" id="orders-search" placeholder="Search by customer or dress..." autocomplete="off">
+          <input type="text" id="orders-search" placeholder="${I18n.t('searchOrders')}" autocomplete="off">
         </div>
 
         <div class="filter-tabs" id="orders-filter-tabs">
-          <button class="filter-tab active" data-filter="all">All</button>
-          <button class="filter-tab" data-filter="pending">⏳ Pending</button>
-          <button class="filter-tab" data-filter="in-progress">🧵 In Progress</button>
-          <button class="filter-tab" data-filter="ready">🔵 Ready</button>
-          <button class="filter-tab" data-filter="delivered">📦 Delivered</button>
-          <button class="filter-tab" data-filter="completed">✅ Completed</button>
+          <button class="filter-tab active" data-filter="all">${I18n.t('filterAll')}</button>
+          <button class="filter-tab" data-filter="pending">⏳ ${I18n.t('pending')}</button>
+          <button class="filter-tab" data-filter="in-progress">🧵 ${I18n.t('inProgress')}</button>
+          <button class="filter-tab" data-filter="ready">🔵 ${I18n.t('ready')}</button>
+          <button class="filter-tab" data-filter="delivered">📦 ${I18n.t('delivered')}</button>
+          <button class="filter-tab" data-filter="completed">✅ ${I18n.t('completed')}</button>
         </div>
 
         <div id="orders-list"></div>
@@ -71,15 +71,15 @@ const Orders = (() => {
     }
 
     const subtitle = document.getElementById('orders-subtitle');
-    if (subtitle) subtitle.textContent = `${orders.length} order${orders.length !== 1 ? 's' : ''}`;
+    if (subtitle) subtitle.textContent = `${orders.length} ${I18n.t(orders.length !== 1 ? 'orderPlural' : 'orderSingular')}`;
 
     const list = document.getElementById('orders-list');
     if (!orders.length) {
       list.innerHTML = `
         <div class="empty-state">
           <span class="empty-icon">📋</span>
-          <h3>No orders found</h3>
-          <p>${_filter !== 'all' ? 'No orders match this filter' : 'Add customers to create orders'}</p>
+          <h3>${I18n.t('noOrders')}</h3>
+          <p>${_filter !== 'all' ? I18n.t('noOrdersFilter') : I18n.t('createFirstOrder')}</p>
         </div>`;
       return;
     }
@@ -126,19 +126,19 @@ const Orders = (() => {
         <div class="order-card-footer">
           <div>
             <div class="order-amount">${Utils.currency(o.totalAmount)}</div>
-            ${balance > 0 ? `<div style="font-size:.72rem;color:var(--unpaid)">Due: ${Utils.currency(balance)}</div>` : ''}
+            ${balance > 0 ? `<div style="font-size:.72rem;color:var(--unpaid)">${I18n.t('due')}${Utils.currency(balance)}</div>` : ''}
           </div>
           <div class="order-delivery ${isOverdue ? 'text-danger' : ''}">
             📅 ${Utils.formatDate(o.deliveryDate)}
-            ${isOverdue ? '<span style="color:var(--unpaid);font-weight:700"> · Overdue!</span>' : ''}
+            ${isOverdue ? `<span style="color:var(--unpaid);font-weight:700"> · ${I18n.t('overdue')}</span>` : ''}
           </div>
         </div>
 
         <!-- Action Row -->
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--border-light)">
           ${statusActions(o.status, o.id)}
-          <button class="btn btn-secondary btn-sm" data-action="receipt" data-order-id="${o.id}">🧾 Receipt</button>
-          <button class="btn btn-ghost btn-sm" data-action="edit" data-order-id="${o.id}">✏️ Edit</button>
+        <button class="btn btn-secondary btn-sm" data-action="receipt" data-order-id="${o.id}">🧾 ${I18n.t('receipt')}</button>
+          <button class="btn btn-ghost btn-sm" data-action="edit" data-order-id="${o.id}">✏️ ${I18n.t('edit')}</button>
           <button class="btn btn-danger btn-sm" data-action="delete" data-order-id="${o.id}">🗑️</button>
         </div>
       </div>`;
@@ -146,10 +146,10 @@ const Orders = (() => {
 
   function statusActions(status, orderId) {
     const actions = {
-      pending:     [['in-progress', '🧵 Start',   'btn-secondary']],
-      'in-progress':[['ready',     '🔵 Mark Ready','btn-secondary']],
-      ready:       [['delivered',  '📦 Delivered', 'btn-secondary']],
-      delivered:   [['completed',  '✅ Complete',  'btn-primary']],
+      pending:     [['in-progress', `🧵 ${I18n.t('actionStart')}`,   'btn-secondary']],
+      'in-progress':[['ready',     `🔵 ${I18n.t('actionReady')}`, 'btn-secondary']],
+      ready:       [['delivered',  `📦 ${I18n.t('actionDelivered')}`, 'btn-secondary']],
+      delivered:   [['completed',  `✅ ${I18n.t('actionComplete')}`,  'btn-primary']],
       completed:   [],
     };
     return (actions[status] || []).map(([nextStatus, label, cls]) =>
@@ -168,17 +168,17 @@ const Orders = (() => {
       if (!btn) return;
       const next = btn.dataset.next;
       DB.updateOrderStatus(orderId, next);
-      Utils.toast(`Order marked as ${next.replace('-', ' ')}!`, 'success');
+      Utils.toast(`${I18n.t('orderMarked')} ${I18n.t(next.replace('-', ''))}!`, 'success');
       renderList();
     } else if (action === 'delete') {
       const ok = await Utils.confirm({
-        icon: '🗑️', title: 'Delete Order',
-        message: 'Are you sure you want to delete this order? This cannot be undone.',
-        confirmText: 'Delete', danger: true,
+        icon: '🗑️', title: I18n.t('deleteOrder'),
+        message: I18n.t('deleteOrderConfirm'),
+        confirmText: I18n.t('deleteBtn'), danger: true,
       });
       if (ok) {
         DB.deleteOrder(orderId);
-        Utils.toast('Order deleted', 'info');
+        Utils.toast(I18n.t('orderDeleted'), 'info');
         renderList();
       }
     }
@@ -186,16 +186,16 @@ const Orders = (() => {
 
   // Called from modals (delete from profile view)
   async function deleteOrderFromProfile(orderId, customerId) {
-    const ok = await Utils.confirm({
-      icon: '🗑️', title: 'Delete Order',
-      message: 'Are you sure? This cannot be undone.',
-      confirmText: 'Delete', danger: true,
-    });
-    if (ok) {
-      DB.deleteOrder(orderId);
-      Utils.toast('Order deleted', 'info');
-      Modals.renderProfile(customerId);
-    }
+      const ok = await Utils.confirm({
+        icon: '🗑️', title: I18n.t('deleteOrder'),
+        message: I18n.t('deleteOrderConfirmShort'),
+        confirmText: I18n.t('deleteBtn'), danger: true,
+      });
+      if (ok) {
+        DB.deleteOrder(orderId);
+        Utils.toast(I18n.t('orderDeleted'), 'info');
+        Modals.renderProfile(customerId);
+      }
   }
 
   return { render, renderList, deleteOrderFromProfile };
