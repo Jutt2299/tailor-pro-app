@@ -5,7 +5,7 @@
 'use strict';
 
 const App = (() => {
-  let _currentPage = 'home';
+  let _currentPage = null;
 
   function init() {
     // Initialize Modals
