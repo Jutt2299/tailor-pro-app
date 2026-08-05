@@ -65,9 +65,12 @@ const App = (() => {
 
   function updateNavLabels() {
     if (!window.I18n) return;
+    // Update bottom nav text
     document.querySelectorAll('.nav-label[data-i18n]').forEach(el => {
       el.textContent = I18n.t(el.dataset.i18n);
     });
+    // Re-render current page so all page content translates
+    refreshCurrentPage();
   }
 
   return { init, navigate, refreshCurrentPage, updateNavLabels };
