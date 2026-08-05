@@ -1198,3 +1198,43 @@ select.form-control { cursor: pointer; }
 [dir="rtl"] body {
   font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', 'Poppins', sans-serif;
 }
+
+/* ── Gender Selector & Tabs ─────────────────────────────────── */
+.gender-filter-tabs {
+  display: flex; gap: 8px; margin: 16px 0;
+}
+.gender-tab {
+  flex: 1; padding: 8px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-3);
+  font-weight: 500; font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer; transition: all var(--t-fast);
+}
+.gender-tab.active {
+  background: var(--primary); color: #fff; border-color: var(--primary);
+}
+
+.gender-selector {
+  display: flex; gap: 8px;
+  background: var(--surface-2);
+  padding: 4px;
+  border-radius: var(--r-md);
+  margin-top: 8px;
+}
+.gender-sel-btn {
+  flex: 1; padding: 10px;
+  border-radius: var(--r-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-3);
+  font-weight: 600; font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer; transition: all var(--t-fast);
+}
+.gender-sel-btn.active {
+  background: var(--surface); color: var(--text);
+  box-shadow: var(--shadow-sm);
+}

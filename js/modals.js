@@ -63,47 +63,22 @@ const Modals = (() => {
               </div>
             </div>
 
-            <div class="section-title" style="margin-top:0">📏 Body Measurements (inches)</div>
-            <div class="measurement-section">
-              <div class="measurement-grid">
-                <div class="measurement-field">
-                  <label for="m-chest">Chest</label>
-                  <input id="m-chest" type="number" step="0.5" placeholder="e.g. 36">
-                </div>
-                <div class="measurement-field">
-                  <label for="m-waist">Waist</label>
-                  <input id="m-waist" type="number" step="0.5" placeholder="e.g. 28">
-                </div>
-                <div class="measurement-field">
-                  <label for="m-hips">Hips</label>
-                  <input id="m-hips" type="number" step="0.5" placeholder="e.g. 38">
-                </div>
-                <div class="measurement-field">
-                  <label for="m-shoulder">Shoulder</label>
-                  <input id="m-shoulder" type="number" step="0.5" placeholder="e.g. 14">
-                </div>
-                <div class="measurement-field">
-                  <label for="m-sleeve">Sleeve</label>
-                  <input id="m-sleeve" type="number" step="0.5" placeholder="e.g. 22">
-                </div>
-                <div class="measurement-field">
-                  <label for="m-length">Length</label>
-                  <input id="m-length" type="number" step="0.5" placeholder="e.g. 42">
-                </div>
-                <div class="measurement-field">
-                  <label for="m-neck">Neck</label>
-                  <input id="m-neck" type="number" step="0.5" placeholder="e.g. 14">
-                </div>
-                <div class="measurement-field">
-                  <label for="m-thigh">Thigh</label>
-                  <input id="m-thigh" type="number" step="0.5" placeholder="e.g. 20">
-                </div>
-              </div>
-              <div class="form-group" style="margin-top:12px;margin-bottom:0">
-                <label class="form-label" for="m-notes">Measurement Notes</label>
-                <textarea class="form-control" id="m-notes" rows="2" placeholder="Any special notes about measurements..."></textarea>
-              </div>
+            <!-- Gender Selector -->
+            <div class="section-title" style="margin-top:4px">⚧ Category</div>
+            <div class="gender-selector">
+              <button type="button" class="gender-sel-btn active" data-gender="gents" id="sel-gents">
+                👔 Gents
+              </button>
+              <button type="button" class="gender-sel-btn" data-gender="ladies" id="sel-ladies">
+                👗 Ladies
+              </button>
             </div>
+            <input type="hidden" id="c-gender" value="gents">
+
+            <!-- Measurements (dynamic) -->
+            <div class="section-title" style="margin-top:12px">📏 Measurements (inches)</div>
+            <div id="measurements-container"></div>
+
           </form>
         </div>
         <div class="modal-footer">
@@ -115,11 +90,86 @@ const Modals = (() => {
     document.body.insertAdjacentHTML('beforeend', html);
     bindClose('modal-customer', 'modal-customer-close', 'modal-customer-cancel');
     document.getElementById('modal-customer-save').addEventListener('click', saveCustomer);
+
+    // Gender selector buttons
+    document.querySelectorAll('.gender-sel-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.gender-sel-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('c-gender').value = btn.dataset.gender;
+        renderMeasurementFields(btn.dataset.gender);
+      });
+    });
+
+    // Initial render
+    renderMeasurementFields('gents');
   }
 
+  function renderMeasurementFields(gender) {
+    const lang = I18n.getLang();
+    const ur = lang === 'ur';
+    const container = document.getElementById('measurements-container');
+    if (!container) return;
+
+    const gentsFields = [
+      { id: 'm-chest',        label: ur ? 'سینہ'           : 'Chest',          ph: '36' },
+      { id: 'm-waist',        label: ur ? 'کمر'            : 'Waist',          ph: '32' },
+      { id: 'm-shoulder',     label: ur ? 'کندھا'          : 'Shoulder',       ph: '15' },
+      { id: 'm-sleeve',       label: ur ? 'آستین'          : 'Sleeve',         ph: '24' },
+      { id: 'm-neck',         label: ur ? 'گردن'           : 'Neck',           ph: '14' },
+      { id: 'm-shirt-length', label: ur ? 'قمیض لمبائی'   : 'Shirt Length',   ph: '30' },
+      { id: 'm-trouser',      label: ur ? 'پاجامہ/شلوار'  : 'Trouser/Shalwar',ph: '40' },
+      { id: 'm-thigh',        label: ur ? 'ران'            : 'Thigh',          ph: '22' },
+      { id: 'm-knee',         label: ur ? 'گھٹنا'          : 'Knee',           ph: '18' },
+    ];
+
+    const ladiesFields = [
+      { id: 'm-chest',        label: ur ? 'سینہ'           : 'Chest/Bust',     ph: '36' },
+      { id: 'm-waist',        label: ur ? 'کمر'            : 'Waist',          ph: '28' },
+      { id: 'm-hips',         label: ur ? 'کولہے'          : 'Hips',           ph: '38' },
+      { id: 'm-shoulder',     label: ur ? 'کندھا'          : 'Shoulder',       ph: '14' },
+      { id: 'm-sleeve',       label: ur ? 'آستین'          : 'Sleeve',         ph: '22' },
+      { id: 'm-neck',         label: ur ? 'گردن'           : 'Neck',           ph: '13' },
+      { id: 'm-full-length',  label: ur ? 'پوری لمبائی'   : 'Full Length',    ph: '50' },
+      { id: 'm-daman',        label: ur ? 'دامن'           : 'Daman/Frock',    ph: '42' },
+      { id: 'm-trouser',      label: ur ? 'پاجامہ/شلوار'  : 'Trouser/Shalwar',ph: '38' },
+      { id: 'm-calf',         label: ur ? 'پنڈلی'          : 'Calf',           ph: '14' },
+    ];
+
+    const fields = gender === 'ladies' ? ladiesFields : gentsFields;
+    // Save existing values before re-render
+    const existingVals = {};
+    container.querySelectorAll('input[id^="m-"]').forEach(el => {
+      existingVals[el.id] = el.value;
+    });
+
+    container.innerHTML = `
+      <div class="measurement-section">
+        <div class="measurement-grid">
+          ${fields.map(f => `
+            <div class="measurement-field">
+              <label for="${f.id}">${f.label}</label>
+              <input id="${f.id}" type="number" step="0.5" placeholder="${f.ph}" value="${existingVals[f.id] || ''}">
+            </div>`).join('')}
+        </div>
+        <div class="form-group" style="margin-top:12px;margin-bottom:0">
+          <label class="form-label" for="m-notes">${ur ? 'اضافی نوٹ' : 'Measurement Notes'}</label>
+          <textarea class="form-control" id="m-notes" rows="2" placeholder="${ur ? 'پیمائش کے بارے میں خصوصی نوٹ...' : 'Any special notes about measurements...'}"></textarea>
+        </div>
+      </div>`;
+  }
+
+
   function openAddCustomer(prefill = {}) {
-    document.getElementById('modal-customer-title').textContent = 'Add New Customer';
+    const lang = I18n.getLang();
+    document.getElementById('modal-customer-title').textContent =
+      lang === 'ur' ? 'نیا گاہک شامل کریں' : 'Add New Customer';
     document.getElementById('customer-edit-id').value = '';
+    document.getElementById('c-gender').value = 'gents';
+    document.querySelectorAll('.gender-sel-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.gender === 'gents');
+    });
+    renderMeasurementFields('gents');
     clearCustomerForm();
     if (prefill.name)  document.getElementById('c-name').value  = prefill.name;
     if (prefill.phone) document.getElementById('c-phone').value = prefill.phone;
@@ -129,58 +179,97 @@ const Modals = (() => {
   function openEditCustomer(customerId) {
     const customer = DB.getCustomerById(customerId);
     if (!customer) return;
-    document.getElementById('modal-customer-title').textContent = 'Edit Customer';
+    const lang   = I18n.getLang();
+    const gender = customer.gender || 'gents';
+    document.getElementById('modal-customer-title').textContent =
+      lang === 'ur' ? 'گاہک ترمیم کریں' : 'Edit Customer';
     document.getElementById('customer-edit-id').value = customer.id;
     document.getElementById('c-name').value    = customer.name    || '';
     document.getElementById('c-phone').value   = customer.phone   || '';
     document.getElementById('c-address').value = customer.address || '';
+    document.getElementById('c-gender').value  = gender;
+
+    // Set gender selector active state
+    document.querySelectorAll('.gender-sel-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.gender === gender);
+    });
+    // Render correct measurement fields
+    renderMeasurementFields(gender);
+
+    // Fill measurement values after fields are rendered
     const m = customer.measurements || {};
-    document.getElementById('m-chest').value    = m.chest    || '';
-    document.getElementById('m-waist').value    = m.waist    || '';
-    document.getElementById('m-hips').value     = m.hips     || '';
-    document.getElementById('m-shoulder').value = m.shoulder || '';
-    document.getElementById('m-sleeve').value   = m.sleeve   || '';
-    document.getElementById('m-length').value   = m.length   || '';
-    document.getElementById('m-neck').value     = m.neck     || '';
-    document.getElementById('m-thigh').value    = m.thigh    || '';
-    document.getElementById('m-notes').value    = m.notes    || '';
+    const fillField = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val || '';
+    };
+    fillField('m-chest',       m.chest);
+    fillField('m-waist',       m.waist);
+    fillField('m-shoulder',    m.shoulder);
+    fillField('m-sleeve',      m.sleeve);
+    fillField('m-neck',        m.neck);
+    fillField('m-trouser',     m.trouser);
+    fillField('m-thigh',       m.thigh);
+    if (gender === 'gents') {
+      fillField('m-shirt-length', m.shirt_length);
+      fillField('m-knee',         m.knee);
+    } else {
+      fillField('m-hips',        m.hips);
+      fillField('m-full-length', m.full_length);
+      fillField('m-daman',       m.daman);
+      fillField('m-calf',        m.calf);
+    }
+    fillField('m-notes', m.notes);
     openOverlay('modal-customer');
   }
 
   function clearCustomerForm() {
-    ['c-name','c-phone','c-address','m-chest','m-waist','m-hips',
-     'm-shoulder','m-sleeve','m-length','m-neck','m-thigh','m-notes']
-      .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    ['c-name','c-phone','c-address'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    // Measurement fields are dynamic, clear whatever is rendered
+    document.querySelectorAll('#measurements-container input, #measurements-container textarea').forEach(el => el.value = '');
   }
 
   function saveCustomer() {
+    const lang  = I18n.getLang();
     const name  = document.getElementById('c-name').value.trim();
     const phone = document.getElementById('c-phone').value.trim();
-    if (!name)  { Utils.toast('Name is required', 'error');  return; }
-    if (!phone) { Utils.toast('Phone is required', 'error'); return; }
+    const gender = document.getElementById('c-gender').value || 'gents';
 
-    const data = {
-      name, phone,
-      address: document.getElementById('c-address').value.trim(),
-      measurements: {
-        chest:    document.getElementById('m-chest').value,
-        waist:    document.getElementById('m-waist').value,
-        hips:     document.getElementById('m-hips').value,
-        shoulder: document.getElementById('m-shoulder').value,
-        sleeve:   document.getElementById('m-sleeve').value,
-        length:   document.getElementById('m-length').value,
-        neck:     document.getElementById('m-neck').value,
-        thigh:    document.getElementById('m-thigh').value,
-        notes:    document.getElementById('m-notes').value,
-      },
+    if (!name)  { Utils.toast(lang === 'ur' ? 'نام ضروری ہے' : 'Name is required',  'error'); return; }
+    if (!phone) { Utils.toast(lang === 'ur' ? 'فون ضروری ہے' : 'Phone is required', 'error'); return; }
+
+    const getVal = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+
+    const measurements = {
+      chest:        getVal('m-chest'),
+      waist:        getVal('m-waist'),
+      shoulder:     getVal('m-shoulder'),
+      sleeve:       getVal('m-sleeve'),
+      neck:         getVal('m-neck'),
+      trouser:      getVal('m-trouser'),
+      thigh:        getVal('m-thigh'),
+      notes:        getVal('m-notes'),
     };
+    if (gender === 'gents') {
+      measurements.shirt_length = getVal('m-shirt-length');
+      measurements.knee         = getVal('m-knee');
+    } else {
+      measurements.hips        = getVal('m-hips');
+      measurements.full_length = getVal('m-full-length');
+      measurements.daman       = getVal('m-daman');
+      measurements.calf        = getVal('m-calf');
+    }
+
+    const data = { name, phone, gender, address: document.getElementById('c-address').value.trim(), measurements };
     const editId = document.getElementById('customer-edit-id').value;
     if (editId) {
       DB.updateCustomer(editId, data);
-      Utils.toast('Customer updated!', 'success');
+      Utils.toast(lang === 'ur' ? '✅ گاہک اپ ڈیٹ ہو گیا!' : '✅ Customer updated!', 'success');
     } else {
       DB.addCustomer(data);
-      Utils.toast('Customer added!', 'success');
+      Utils.toast(lang === 'ur' ? '✅ گاہک شامل ہو گیا!' : '✅ Customer added!', 'success');
     }
     closeOverlay('modal-customer');
     App.refreshCurrentPage();
