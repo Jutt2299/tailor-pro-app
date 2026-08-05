@@ -31,8 +31,19 @@ const Auth = (() => {
     _setupTabSwitching();
     _setupForms();
 
+    // ── OFFLINE-FIRST: Check local token immediately ──────────
+    // If user was previously logged in, show app instantly
+    // even without internet connection
+    const offlineUser = _getOfflineUser();
+    if (offlineUser) {
+      currentUser = offlineUser;
+      _showApp();
+    }
+
+    // ── ONLINE: Connect to Supabase if available ──────────────
     if (!supabase) {
-      console.error('[Auth] Supabase not available');
+      console.warn('[Auth] Supabase not available (offline mode)');
+      if (!offlineUser) _showAuth(); // No local session → show login
       return;
     }
 
@@ -43,6 +54,42 @@ const Auth = (() => {
     supabase.auth.onAuthStateChange((_event, session) => {
       _handleSession(session);
     });
+  }
+
+  /* ── Offline User Check ───────────────────────────────────── */
+  function _getOfflineUser() {
+    try {
+      // Supabase stores session in localStorage with this key pattern
+      const keys = Object.keys(localStorage).filter(k =>
+        k.includes('supabase') && k.includes('auth')
+      );
+      for (const key of keys) {
+        const data = JSON.parse(localStorage.getItem(key) || '{}');
+        const session = data.access_token ? data : (data.currentSession || null);
+        if (session && session.user && session.access_token) {
+          // Check token expiry
+          const exp = session.expires_at || 0;
+          const nowSec = Math.floor(Date.now() / 1000);
+          if (exp > nowSec || exp === 0) {
+            return session.user;
+          }
+        }
+      }
+    } catch(e) {}
+    return null;
+  }
+
+  /* ── Show/Hide Screens ────────────────────────────────────── */
+  function _showApp() {
+    document.getElementById('auth-screen')?.classList.add('hidden');
+    document.getElementById('app')?.classList.remove('hidden');
+    if (window.Sync) Sync.init();
+    _fetchProfile();
+  }
+
+  function _showAuth() {
+    document.getElementById('auth-screen')?.classList.remove('hidden');
+    document.getElementById('app')?.classList.add('hidden');
   }
 
   /* ── Tab Switching ────────────────────────────────────────── */
@@ -83,19 +130,16 @@ const Auth = (() => {
 
   /* ── Session Handler ──────────────────────────────────────── */
   function _handleSession(session) {
-    const authScreen = document.getElementById('auth-screen');
-    const appScreen  = document.getElementById('app');
-
     if (session && session.user) {
       currentUser = session.user;
-      if (authScreen) authScreen.classList.add('hidden');
-      if (appScreen)  appScreen.classList.remove('hidden');
-      if (window.Sync) Sync.init();
-      _fetchProfile();
+      _showApp();
     } else {
-      currentUser = null;
-      if (authScreen) authScreen.classList.remove('hidden');
-      if (appScreen)  appScreen.classList.add('hidden');
+      // Only hide app if we DON'T have an offline user
+      // (offline user already showing the app)
+      if (!_getOfflineUser()) {
+        currentUser = null;
+        _showAuth();
+      }
     }
   }
 
