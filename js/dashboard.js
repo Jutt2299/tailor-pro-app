@@ -15,7 +15,10 @@ const Dashboard = (() => {
     page.innerHTML = `
       <div class="app-bar">
         <div>
-          <h1>✂️ ${Utils.esc(settings.shopName)}</h1>
+          <h1 style="display:flex; align-items:center; gap:8px;">
+            <img src="assets/logo.jpg" alt="Logo" style="width:32px; height:32px; border-radius:50%; border:1px solid var(--primary); object-fit:cover;">
+            ${Utils.esc(settings.shopName)}
+          </h1>
           <div class="subtitle">${greeting}, ${Utils.formatDate(Utils.today())}</div>
         </div>
         <div class="app-bar-actions">

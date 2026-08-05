@@ -4,7 +4,7 @@
    Data syncs to Supabase when internet is available.
    ============================================================ */
 
-const CACHE_VERSION = 'tailor-pro-v14';
+const CACHE_VERSION = 'tailor-pro-v15';
 
 // All local app files to cache for offline use
 const APP_SHELL = [

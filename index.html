@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Tailor Pro</title>
   <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#0F766E">
+  <meta name="theme-color" content="#000000">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/auth.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -13,7 +13,7 @@
   <!-- KILL SWITCH: Force clear old service worker and cache on every update -->
   <script>
     (function() {
-      var BUILD = 'v14-dashboard-render-fix';
+      var BUILD = 'v15-black-gold-theme';
       if (localStorage.getItem('app_build') !== BUILD) {
         localStorage.setItem('app_build', BUILD);
         // Unregister ALL old service workers
@@ -39,8 +39,10 @@
   <div id="auth-screen" class="auth-container">
     <div class="auth-card">
       <div class="auth-header">
-        <div class="auth-logo">✂️</div>
-        <h2>Tailor Pro</h2>
+        <div style="margin-bottom: 12px;">
+          <img src="assets/logo.jpg" alt="Tailor Logo" style="width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--primary); object-fit: cover; box-shadow: var(--shadow-md);">
+        </div>
+        <h2 style="color: var(--primary);">Tailor Pro</h2>
         <p id="auth-tagline">Login or create a free account</p>
       </div>
 
