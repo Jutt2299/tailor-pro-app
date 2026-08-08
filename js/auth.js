@@ -18,7 +18,9 @@ const Auth = (() => {
       f.classList.remove('active');
       f.style.display = 'none';
     });
-    const form = document.getElementById('form-' + target);
+    // Support both: form-login/form-register AND login-form-new/register-form-new
+    const form = document.getElementById('form-' + target) ||
+                 document.getElementById(target + '-form-new');
     if (form) {
       form.classList.add('active');
       form.style.display = 'block';
@@ -104,7 +106,9 @@ const Auth = (() => {
         f.classList.remove('active');
         f.style.display = 'none';
       });
-      const form = document.getElementById('form-' + target);
+      // Support both: form-login/form-register AND login-form-new/register-form-new
+      const form = document.getElementById('form-' + target) ||
+                   document.getElementById(target + '-form-new');
       if (form) {
         form.classList.add('active');
         form.style.display = 'block';
