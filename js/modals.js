@@ -174,14 +174,19 @@ const Modals = (() => {
                 <option value="open_bazo" ${existingVals['m-cuff-style']==='open_bazo'?'selected':''}>${ur ? 'اوپن بازو' : 'Open Bazo'}</option>
               </select>
             </div>
-            <div class="measurement-field">
-              <label for="m-pocket-style">${ur ? 'جیب کا انداز' : 'Pocket Style'}</label>
-              <select id="m-pocket-style">
-                <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
-                <option value="front" ${existingVals['m-pocket-style']==='front'?'selected':''}>${ur ? 'فرنٹ جیب' : 'Front Pocket'}</option>
-                <option value="side" ${existingVals['m-pocket-style']==='side'?'selected':''}>${ur ? 'سائیڈ جیبیں' : 'Side Pockets'}</option>
-                <option value="shalwar" ${existingVals['m-pocket-style']==='shalwar'?'selected':''}>${ur ? 'شلوار جیب' : 'Shalwar Pocket'}</option>
-              </select>
+            <div class="measurement-field" style="grid-column:1/-1">
+              <label>${ur ? 'جیب کا انداز (کئی منتخب کر سکتے ہیں)' : 'Pocket Style (select all that apply)'}</label>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">
+                ${['front','side','shalwar'].map(val => {
+                  const label = val==='front' ? (ur?'فرنٹ جیب':'Front Pocket') : val==='side' ? (ur?'سائیڈ جیبیں':'Side Pockets') : (ur?'شلوار جیب':'Shalwar Pocket');
+                  const prevPockets = (existingVals['m-pocket-front']||existingVals['m-pocket-side']||existingVals['m-pocket-shalwar']) ? true : false;
+                  const checked = existingVals['m-pocket-'+val] === 'on' ? 'checked' : '';
+                  return `<label style="display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--r-md);padding:6px 12px;cursor:pointer;font-size:.82rem;font-weight:500;transition:all .15s">
+                    <input type="checkbox" id="m-pocket-${val}" name="m-pocket" value="${val}" ${checked} style="accent-color:var(--primary);width:15px;height:15px">
+                    ${label}
+                  </label>`;
+                }).join('')}
+              </div>
             </div>
             <div class="measurement-field">
               <label for="m-fit-gents">${ur ? 'فٹنگ' : 'Fit'}</label>
@@ -366,7 +371,12 @@ const Modals = (() => {
       fillField('m-neck',         m.neck);
       fillField('m-collar-type',  m.collar_type);
       fillField('m-cuff-style',   m.cuff_style);
-      fillField('m-pocket-style', m.pocket_style);
+      // Handle multi-select pocket checkboxes
+      const pockets = m.pocket_style ? m.pocket_style.split(',') : [];
+      ['front','side','shalwar'].forEach(v => {
+        const el = document.getElementById('m-pocket-'+v);
+        if (el) el.checked = pockets.includes(v);
+      });
       fillField('m-fit-gents',    m.fit_gents);
       fillField('m-shalwar-cut',  m.shalwar_cut);
     } else {
@@ -417,7 +427,13 @@ const Modals = (() => {
       measurements.neck         = getVal('m-neck');
       measurements.collar_type  = getSel('m-collar-type');
       measurements.cuff_style   = getSel('m-cuff-style');
-      measurements.pocket_style = getSel('m-pocket-style');
+      // Collect all checked pockets as comma-separated string
+      const pockets = [];
+      ['front','side','shalwar'].forEach(v => {
+        const el = document.getElementById('m-pocket-'+v);
+        if (el && el.checked) pockets.push(v);
+      });
+      measurements.pocket_style = pockets.join(',');
       measurements.fit_gents    = getSel('m-fit-gents');
       measurements.shalwar_cut  = getSel('m-shalwar-cut');
     } else {
@@ -737,6 +753,7 @@ const Modals = (() => {
   }
 
   function renderProfile(customerId) {
+    const lang = I18n.getLang();
     const customer = DB.getCustomerById(customerId);
     if (!customer) return;
     const orders  = DB.getOrdersByCustomer(customerId);
@@ -811,7 +828,19 @@ const Modals = (() => {
             html += row(t('Neck','گلا'),         m.neck);
             html += rowTxt(t('Collar','کالر'),   m.collar_type);
             html += rowTxt(t('Cuff','کف'),       m.cuff_style);
-            html += rowTxt(t('Pocket','جیب'),    m.pocket_style);
+            
+            // Format pocket style nicely
+            let formattedPocket = m.pocket_style || '';
+            if (formattedPocket) {
+              formattedPocket = formattedPocket.split(',').map(p => {
+                if(p==='front') return t('Front','فرنٹ');
+                if(p==='side') return t('Side','سائیڈ');
+                if(p==='shalwar') return t('Shalwar','شلوار');
+                return p;
+              }).join(' + ');
+            }
+            html += rowTxt(t('Pocket','جیب'),    formattedPocket);
+            
             html += rowTxt(t('Fit','فٹنگ'),      m.fit_gents);
             html += rowTxt(t('Shalwar Cut','شلوار کٹ'), m.shalwar_cut);
           } else {
