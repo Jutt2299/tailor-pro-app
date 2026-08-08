@@ -155,8 +155,17 @@ const Settings = (() => {
     });
     document.getElementById('settings-file-input').addEventListener('change', importBackup);
     document.getElementById('settings-clear').addEventListener('click', clearAllData);
-    document.getElementById('settings-logout').addEventListener('click', () => {
-      if (window.Auth) Auth.logout();
+    document.getElementById('settings-logout').addEventListener('click', async () => {
+      const lang = I18n.getLang();
+      const ok = await Utils.confirm({
+        icon: '🚨',
+        title: lang === 'ur' ? 'لاگ آؤٹ' : 'Logout',
+        message: lang === 'ur' ? 'کیا آپ واقعی لاگ آؤٹ کرنا چاہتے ہیں؟' : 'Are you sure you want to logout?',
+        confirmText: lang === 'ur' ? 'لاگ آؤٹ' : 'Logout',
+        danger: true,
+      });
+      if (!ok) return;
+      if (window.Auth) await Auth.logout();
     });
 
     // Language switcher

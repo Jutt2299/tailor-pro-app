@@ -356,7 +356,20 @@ const Auth = (() => {
 
   /* ── Logout ───────────────────────────────────────────────── */
   async function logout() {
-    if (supabase) await supabase.auth.signOut();
+    try {
+      if (supabase) await supabase.auth.signOut();
+    } catch(e) {}
+    
+    // Clear all Supabase localStorage keys
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('sb-') && key.endsWith('-auth-token')) {
+        localStorage.removeItem(key);
+      }
+    }
+    
+    localStorage.removeItem('offline_user');
+    window.location.reload();
   }
 
   return { init, logout, getUser: () => currentUser, applyAuthTranslations };
