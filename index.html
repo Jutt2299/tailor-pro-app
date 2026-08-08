@@ -13,7 +13,7 @@
   <!-- KILL SWITCH: Force clear old service worker and cache on every update -->
   <script>
     (function() {
-      var BUILD = 'v19-logout-fix';
+      var BUILD = 'v20-logout-bug-fix';
       if (localStorage.getItem('app_build') !== BUILD) {
         localStorage.setItem('app_build', BUILD);
         // Unregister ALL old service workers

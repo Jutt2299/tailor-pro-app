@@ -360,15 +360,18 @@ const Auth = (() => {
       if (supabase) await supabase.auth.signOut();
     } catch(e) {}
     
-    // Clear all Supabase localStorage keys
+    // Collect keys first, then remove to avoid index shifting bugs
+    const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && key.startsWith('sb-') && key.endsWith('-auth-token')) {
-        localStorage.removeItem(key);
+        keysToRemove.push(key);
       }
     }
     
+    keysToRemove.forEach(k => localStorage.removeItem(k));
     localStorage.removeItem('offline_user');
+    
     window.location.reload();
   }
 
