@@ -161,43 +161,43 @@ const Modals = (() => {
               <label for="m-collar-type">${ur ? 'کالر کا انداز' : 'Collar Type'}</label>
               <select id="m-collar-type">
                 <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
-                <option value="collar" ${existingVals['m-collar-type']==='collar'?'selected':''}>Collar</option>
-                <option value="ban" ${existingVals['m-collar-type']==='ban'?'selected':''}>Ban</option>
-                <option value="half_ban" ${existingVals['m-collar-type']==='half_ban'?'selected':''}>Half Ban</option>
+                <option value="collar" ${existingVals['m-collar-type']==='collar'?'selected':''}>${ur ? 'کالر' : 'Collar'}</option>
+                <option value="ban" ${existingVals['m-collar-type']==='ban'?'selected':''}>${ur ? 'بین' : 'Ban'}</option>
+                <option value="half_ban" ${existingVals['m-collar-type']==='half_ban'?'selected':''}>${ur ? 'ہاف بین' : 'Half Ban'}</option>
               </select>
             </div>
             <div class="measurement-field">
               <label for="m-cuff-style">${ur ? 'کف کا انداز' : 'Cuff Style'}</label>
               <select id="m-cuff-style">
                 <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
-                <option value="cuff" ${existingVals['m-cuff-style']==='cuff'?'selected':''}>Cuff</option>
-                <option value="open_bazo" ${existingVals['m-cuff-style']==='open_bazo'?'selected':''}>Open Bazo</option>
+                <option value="cuff" ${existingVals['m-cuff-style']==='cuff'?'selected':''}>${ur ? 'کف' : 'Cuff'}</option>
+                <option value="open_bazo" ${existingVals['m-cuff-style']==='open_bazo'?'selected':''}>${ur ? 'اوپن بازو' : 'Open Bazo'}</option>
               </select>
             </div>
             <div class="measurement-field">
               <label for="m-pocket-style">${ur ? 'جیب کا انداز' : 'Pocket Style'}</label>
               <select id="m-pocket-style">
                 <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
-                <option value="front" ${existingVals['m-pocket-style']==='front'?'selected':''}>Front Pocket</option>
-                <option value="side" ${existingVals['m-pocket-style']==='side'?'selected':''}>Side Pockets</option>
-                <option value="shalwar" ${existingVals['m-pocket-style']==='shalwar'?'selected':''}>Shalwar Pocket</option>
+                <option value="front" ${existingVals['m-pocket-style']==='front'?'selected':''}>${ur ? 'فرنٹ جیب' : 'Front Pocket'}</option>
+                <option value="side" ${existingVals['m-pocket-style']==='side'?'selected':''}>${ur ? 'سائیڈ جیبیں' : 'Side Pockets'}</option>
+                <option value="shalwar" ${existingVals['m-pocket-style']==='shalwar'?'selected':''}>${ur ? 'شلوار جیب' : 'Shalwar Pocket'}</option>
               </select>
             </div>
             <div class="measurement-field">
               <label for="m-fit-gents">${ur ? 'فٹنگ' : 'Fit'}</label>
               <select id="m-fit-gents">
                 <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
-                <option value="slim" ${existingVals['m-fit-gents']==='slim'?'selected':''}>Slim Fit</option>
-                <option value="regular" ${existingVals['m-fit-gents']==='regular'?'selected':''}>Regular</option>
-                <option value="loose" ${existingVals['m-fit-gents']==='loose'?'selected':''}>Loose</option>
+                <option value="slim" ${existingVals['m-fit-gents']==='slim'?'selected':''}>${ur ? 'سلم فٹ' : 'Slim Fit'}</option>
+                <option value="regular" ${existingVals['m-fit-gents']==='regular'?'selected':''}>${ur ? 'ریگولر' : 'Regular'}</option>
+                <option value="loose" ${existingVals['m-fit-gents']==='loose'?'selected':''}>${ur ? 'ڈھیلا' : 'Loose'}</option>
               </select>
             </div>
             <div class="measurement-field">
               <label for="m-shalwar-cut">${ur ? 'شلوار کٹ' : 'Shalwar Cut'}</label>
               <select id="m-shalwar-cut">
                 <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
-                <option value="straight" ${existingVals['m-shalwar-cut']==='straight'?'selected':''}>Straight</option>
-                <option value="patiala" ${existingVals['m-shalwar-cut']==='patiala'?'selected':''}>Patiala</option>
+                <option value="straight" ${existingVals['m-shalwar-cut']==='straight'?'selected':''}>${ur ? 'سیدھی' : 'Straight'}</option>
+                <option value="patiala" ${existingVals['m-shalwar-cut']==='patiala'?'selected':''}>${ur ? 'پٹیالہ' : 'Patiala'}</option>
               </select>
             </div>
           </div>
@@ -256,49 +256,49 @@ const Modals = (() => {
               <label for="m-neckline">${ur ? 'گلے کا ڈیزائن' : 'Neckline Design'}</label>
               <select id="m-neckline">
                 <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
-                <option value="v_neck" ${existingVals['m-neckline']==='v_neck'?'selected':''}>V-Neck</option>
-                <option value="round" ${existingVals['m-neckline']==='round'?'selected':''}>Round (Gol)</option>
-                <option value="boat" ${existingVals['m-neckline']==='boat'?'selected':''}>Boat Neck</option>
-                <option value="collar" ${existingVals['m-neckline']==='collar'?'selected':''}>Collar</option>
-                <option value="square" ${existingVals['m-neckline']==='square'?'selected':''}>Square</option>
+                <option value="v_neck" ${existingVals['m-neckline']==='v_neck'?'selected':''}>${ur ? 'وی نیک' : 'V-Neck'}</option>
+                <option value="round" ${existingVals['m-neckline']==='round'?'selected':''}>${ur ? 'گول' : 'Round (Gol)'}</option>
+                <option value="boat" ${existingVals['m-neckline']==='boat'?'selected':''}>${ur ? 'بوٹ نیک' : 'Boat Neck'}</option>
+                <option value="collar" ${existingVals['m-neckline']==='collar'?'selected':''}>${ur ? 'کالر' : 'Collar'}</option>
+                <option value="square" ${existingVals['m-neckline']==='square'?'selected':''}>${ur ? 'چوکور' : 'Square'}</option>
               </select>
             </div>
             <div class="measurement-field">
               <label for="m-sleeve-style">${ur ? 'بازو کا انداز' : 'Sleeve Style'}</label>
               <select id="m-sleeve-style">
                 <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
-                <option value="full" ${existingVals['m-sleeve-style']==='full'?'selected':''}>Full</option>
-                <option value="3_4" ${existingVals['m-sleeve-style']==='3_4'?'selected':''}>3/4</option>
-                <option value="bell" ${existingVals['m-sleeve-style']==='bell'?'selected':''}>Bell</option>
-                <option value="sleeveless" ${existingVals['m-sleeve-style']==='sleeveless'?'selected':''}>Sleeveless</option>
-                <option value="puff" ${existingVals['m-sleeve-style']==='puff'?'selected':''}>Puff</option>
+                <option value="full" ${existingVals['m-sleeve-style']==='full'?'selected':''}>${ur ? 'پوری بازو' : 'Full'}</option>
+                <option value="3_4" ${existingVals['m-sleeve-style']==='3_4'?'selected':''}>${ur ? 'پونے بازو' : '3/4'}</option>
+                <option value="bell" ${existingVals['m-sleeve-style']==='bell'?'selected':''}>${ur ? 'بیل' : 'Bell'}</option>
+                <option value="sleeveless" ${existingVals['m-sleeve-style']==='sleeveless'?'selected':''}>${ur ? 'بغیر بازو' : 'Sleeveless'}</option>
+                <option value="puff" ${existingVals['m-sleeve-style']==='puff'?'selected':''}>${ur ? 'پف' : 'Puff'}</option>
               </select>
             </div>
             <div class="measurement-field">
               <label for="m-bottom-style">${ur ? 'شلوار / ٹراؤزر کا انداز' : 'Bottom Style'}</label>
               <select id="m-bottom-style">
                 <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
-                <option value="shalwar" ${existingVals['m-bottom-style']==='shalwar'?'selected':''}>Shalwar</option>
-                <option value="trouser" ${existingVals['m-bottom-style']==='trouser'?'selected':''}>Trouser</option>
-                <option value="capri" ${existingVals['m-bottom-style']==='capri'?'selected':''}>Capri</option>
-                <option value="plazo" ${existingVals['m-bottom-style']==='plazo'?'selected':''}>Plazo</option>
+                <option value="shalwar" ${existingVals['m-bottom-style']==='shalwar'?'selected':''}>${ur ? 'شلوار' : 'Shalwar'}</option>
+                <option value="trouser" ${existingVals['m-bottom-style']==='trouser'?'selected':''}>${ur ? 'ٹراؤزر' : 'Trouser'}</option>
+                <option value="capri" ${existingVals['m-bottom-style']==='capri'?'selected':''}>${ur ? 'کیپری' : 'Capri'}</option>
+                <option value="plazo" ${existingVals['m-bottom-style']==='plazo'?'selected':''}>${ur ? 'پلازو' : 'Plazo'}</option>
               </select>
             </div>
             <div class="measurement-field">
               <label for="m-fit-ladies">${ur ? 'فٹنگ' : 'Fit'}</label>
               <select id="m-fit-ladies">
                 <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
-                <option value="fitted" ${existingVals['m-fit-ladies']==='fitted'?'selected':''}>Fitted</option>
-                <option value="a_line" ${existingVals['m-fit-ladies']==='a_line'?'selected':''}>A-line</option>
-                <option value="loose" ${existingVals['m-fit-ladies']==='loose'?'selected':''}>Loose</option>
+                <option value="fitted" ${existingVals['m-fit-ladies']==='fitted'?'selected':''}>${ur ? 'فٹڈ' : 'Fitted'}</option>
+                <option value="a_line" ${existingVals['m-fit-ladies']==='a_line'?'selected':''}>${ur ? 'اے لائن' : 'A-line'}</option>
+                <option value="loose" ${existingVals['m-fit-ladies']==='loose'?'selected':''}>${ur ? 'ڈھیلا' : 'Loose'}</option>
               </select>
             </div>
             <div class="measurement-field">
               <label for="m-piping-lace">${ur ? 'پائپنگ / لیس' : 'Piping/Lace'}</label>
               <select id="m-piping-lace">
                 <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
-                <option value="yes" ${existingVals['m-piping-lace']==='yes'?'selected':''}>Yes</option>
-                <option value="no" ${existingVals['m-piping-lace']==='no'?'selected':''}>No</option>
+                <option value="yes" ${existingVals['m-piping-lace']==='yes'?'selected':''}>${ur ? 'ہاں' : 'Yes'}</option>
+                <option value="no" ${existingVals['m-piping-lace']==='no'?'selected':''}>${ur ? 'نہیں' : 'No'}</option>
               </select>
             </div>
           </div>
