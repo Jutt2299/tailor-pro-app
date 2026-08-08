@@ -111,54 +111,205 @@ const Modals = (() => {
     const container = document.getElementById('measurements-container');
     if (!container) return;
 
-    const gentsFields = [
-      { id: 'm-chest',        label: ur ? 'سینہ'           : 'Chest',          ph: '36' },
-      { id: 'm-waist',        label: ur ? 'کمر'            : 'Waist',          ph: '32' },
-      { id: 'm-shoulder',     label: ur ? 'کندھا'          : 'Shoulder',       ph: '15' },
-      { id: 'm-sleeve',       label: ur ? 'آستین'          : 'Sleeve',         ph: '24' },
-      { id: 'm-neck',         label: ur ? 'گردن'           : 'Neck',           ph: '14' },
-      { id: 'm-shirt-length', label: ur ? 'قمیض لمبائی'   : 'Shirt Length',   ph: '30' },
-      { id: 'm-trouser',      label: ur ? 'پاجامہ/شلوار'  : 'Trouser/Shalwar',ph: '40' },
-      { id: 'm-thigh',        label: ur ? 'ران'            : 'Thigh',          ph: '22' },
-      { id: 'm-knee',         label: ur ? 'گھٹنا'          : 'Knee',           ph: '18' },
-    ];
-
-    const ladiesFields = [
-      { id: 'm-chest',        label: ur ? 'سینہ'           : 'Chest/Bust',     ph: '36' },
-      { id: 'm-waist',        label: ur ? 'کمر'            : 'Waist',          ph: '28' },
-      { id: 'm-hips',         label: ur ? 'کولہے'          : 'Hips',           ph: '38' },
-      { id: 'm-shoulder',     label: ur ? 'کندھا'          : 'Shoulder',       ph: '14' },
-      { id: 'm-sleeve',       label: ur ? 'آستین'          : 'Sleeve',         ph: '22' },
-      { id: 'm-neck',         label: ur ? 'گردن'           : 'Neck',           ph: '13' },
-      { id: 'm-full-length',  label: ur ? 'پوری لمبائی'   : 'Full Length',    ph: '50' },
-      { id: 'm-daman',        label: ur ? 'دامن'           : 'Daman/Frock',    ph: '42' },
-      { id: 'm-trouser',      label: ur ? 'پاجامہ/شلوار'  : 'Trouser/Shalwar',ph: '38' },
-      { id: 'm-calf',         label: ur ? 'پنڈلی'          : 'Calf',           ph: '14' },
-    ];
-
-    const fields = gender === 'ladies' ? ladiesFields : gentsFields;
     // Save existing values before re-render
     const existingVals = {};
-    container.querySelectorAll('input[id^="m-"]').forEach(el => {
-      existingVals[el.id] = el.value;
+    container.querySelectorAll('input, select, textarea').forEach(el => {
+      if (el.id) existingVals[el.id] = el.value;
     });
 
-    container.innerHTML = `
-      <div class="measurement-section">
-        <div class="measurement-grid">
-          ${fields.map(f => `
+    if (gender === 'gents') {
+      container.innerHTML = `
+        <div class="measurement-section">
+          <div class="measurement-grid">
             <div class="measurement-field">
-              <label for="${f.id}">${f.label}</label>
-              <input id="${f.id}" type="number" step="0.5" placeholder="${f.ph}" value="${existingVals[f.id] || ''}">
-            </div>`).join('')}
-        </div>
-        <div class="form-group" style="margin-top:12px;margin-bottom:0">
-          <label class="form-label" for="m-notes">${ur ? 'اضافی نوٹ' : 'Measurement Notes'}</label>
-          <textarea class="form-control" id="m-notes" rows="2" placeholder="${ur ? 'پیمائش کے بارے میں خصوصی نوٹ...' : 'Any special notes about measurements...'}"></textarea>
-        </div>
-      </div>`;
-  }
+              <label for="m-length">${ur ? 'لمبائی (قمیض)' : 'Length (Kameez)'}</label>
+              <input id="m-length" type="number" step="0.5" placeholder="30" value="${existingVals['m-length']||''}">
+            </div>
+            <div class="measurement-field">
+              <label for="m-shoulder">${ur ? 'تیرا (کندھا)' : 'Shoulder (Tera)'}</label>
+              <input id="m-shoulder" type="number" step="0.5" placeholder="15" value="${existingVals['m-shoulder']||''}">
+            </div>
+            <div class="measurement-field">
+              <label for="m-chest">${ur ? 'چھاتی' : 'Chest (Chhati)'}</label>
+              <input id="m-chest" type="number" step="0.5" placeholder="38" value="${existingVals['m-chest']||''}">
+            </div>
+            <div class="measurement-field">
+              <label for="m-waist">${ur ? 'کمر' : 'Waist (Kamar)'}</label>
+              <input id="m-waist" type="number" step="0.5" placeholder="34" value="${existingVals['m-waist']||''}">
+            </div>
+            <div class="measurement-field">
+              <label for="m-arm">${ur ? 'بازو' : 'Arm/Sleeve (Bazo)'}</label>
+              <input id="m-arm" type="number" step="0.5" placeholder="24" value="${existingVals['m-arm']||''}">
+            </div>
+            <div class="measurement-field">
+              <label for="m-neck">${ur ? 'گلا / کالر' : 'Neck/Collar (Gala)'}</label>
+              <input id="m-neck" type="number" step="0.5" placeholder="14" value="${existingVals['m-neck']||''}">
+            </div>
+            <div class="measurement-field">
+              <label for="m-shalwar-length">${ur ? 'شلوار لمبائی' : 'Shalwar Length'}</label>
+              <input id="m-shalwar-length" type="number" step="0.5" placeholder="40" value="${existingVals['m-shalwar-length']||''}">
+            </div>
+            <div class="measurement-field">
+              <label for="m-shalwar-ankle">${ur ? 'پانچہ' : 'Ankle (Poncha)'}</label>
+              <input id="m-shalwar-ankle" type="number" step="0.5" placeholder="8" value="${existingVals['m-shalwar-ankle']||''}">
+            </div>
+          </div>
 
+          <div class="section-title" style="margin-top:16px;margin-bottom:8px">✂️ ${ur ? 'اضافی پسند' : 'Style Preferences (Optional)'}</div>
+          <div class="measurement-grid">
+            <div class="measurement-field">
+              <label for="m-collar-type">${ur ? 'کالر کا انداز' : 'Collar Type'}</label>
+              <select id="m-collar-type">
+                <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
+                <option value="collar" ${existingVals['m-collar-type']==='collar'?'selected':''}>Collar</option>
+                <option value="ban" ${existingVals['m-collar-type']==='ban'?'selected':''}>Ban</option>
+                <option value="half_ban" ${existingVals['m-collar-type']==='half_ban'?'selected':''}>Half Ban</option>
+              </select>
+            </div>
+            <div class="measurement-field">
+              <label for="m-cuff-style">${ur ? 'کف کا انداز' : 'Cuff Style'}</label>
+              <select id="m-cuff-style">
+                <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
+                <option value="cuff" ${existingVals['m-cuff-style']==='cuff'?'selected':''}>Cuff</option>
+                <option value="open_bazo" ${existingVals['m-cuff-style']==='open_bazo'?'selected':''}>Open Bazo</option>
+              </select>
+            </div>
+            <div class="measurement-field">
+              <label for="m-pocket-style">${ur ? 'جیب کا انداز' : 'Pocket Style'}</label>
+              <select id="m-pocket-style">
+                <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
+                <option value="front" ${existingVals['m-pocket-style']==='front'?'selected':''}>Front Pocket</option>
+                <option value="side" ${existingVals['m-pocket-style']==='side'?'selected':''}>Side Pockets</option>
+                <option value="shalwar" ${existingVals['m-pocket-style']==='shalwar'?'selected':''}>Shalwar Pocket</option>
+              </select>
+            </div>
+            <div class="measurement-field">
+              <label for="m-fit-gents">${ur ? 'فٹنگ' : 'Fit'}</label>
+              <select id="m-fit-gents">
+                <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
+                <option value="slim" ${existingVals['m-fit-gents']==='slim'?'selected':''}>Slim Fit</option>
+                <option value="regular" ${existingVals['m-fit-gents']==='regular'?'selected':''}>Regular</option>
+                <option value="loose" ${existingVals['m-fit-gents']==='loose'?'selected':''}>Loose</option>
+              </select>
+            </div>
+            <div class="measurement-field">
+              <label for="m-shalwar-cut">${ur ? 'شلوار کٹ' : 'Shalwar Cut'}</label>
+              <select id="m-shalwar-cut">
+                <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
+                <option value="straight" ${existingVals['m-shalwar-cut']==='straight'?'selected':''}>Straight</option>
+                <option value="patiala" ${existingVals['m-shalwar-cut']==='patiala'?'selected':''}>Patiala</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top:12px;margin-bottom:0">
+            <label class="form-label" for="m-notes">${ur ? 'اضافی نوٹ' : 'Measurement Notes'}</label>
+            <textarea class="form-control" id="m-notes" rows="2" placeholder="${ur ? 'خصوصی نوٹ...' : 'Any special notes...'}">${existingVals['m-notes']||''}</textarea>
+          </div>
+        </div>`;
+    } else {
+      // Ladies
+      container.innerHTML = `
+        <div class="measurement-section">
+          <div class="measurement-grid">
+            <div class="measurement-field">
+              <label for="m-length">${ur ? 'لمبائی (قمیض)' : 'Length (Kameez)'}</label>
+              <input id="m-length" type="number" step="0.5" placeholder="44" value="${existingVals['m-length']||''}">
+            </div>
+            <div class="measurement-field">
+              <label for="m-shoulder">${ur ? 'تیرا (کندھا)' : 'Shoulder (Tera)'}</label>
+              <input id="m-shoulder" type="number" step="0.5" placeholder="13" value="${existingVals['m-shoulder']||''}">
+            </div>
+            <div class="measurement-field">
+              <label for="m-chest">${ur ? 'سینہ / بسٹ' : 'Bust (Chhati)'}</label>
+              <input id="m-chest" type="number" step="0.5" placeholder="36" value="${existingVals['m-chest']||''}">
+            </div>
+            <div class="measurement-field">
+              <label for="m-waist">${ur ? 'کمر' : 'Waist (Kamar)'}</label>
+              <input id="m-waist" type="number" step="0.5" placeholder="30" value="${existingVals['m-waist']||''}">
+            </div>
+            <div class="measurement-field">
+              <label for="m-hips">${ur ? 'ہپ' : 'Hips (Hip)'}</label>
+              <input id="m-hips" type="number" step="0.5" placeholder="38" value="${existingVals['m-hips']||''}">
+            </div>
+            <div class="measurement-field">
+              <label for="m-arm">${ur ? 'بازو' : 'Arm/Sleeve (Bazo)'}</label>
+              <input id="m-arm" type="number" step="0.5" placeholder="22" value="${existingVals['m-arm']||''}">
+            </div>
+            <div class="measurement-field">
+              <label for="m-armhole">${ur ? 'مونڈھا' : 'Armhole (Monda)'}</label>
+              <input id="m-armhole" type="number" step="0.5" placeholder="14" value="${existingVals['m-armhole']||''}">
+            </div>
+            <div class="measurement-field">
+              <label for="m-shalwar-length">${ur ? 'شلوار / ٹراؤزر لمبائی' : 'Shalwar/Trouser Length'}</label>
+              <input id="m-shalwar-length" type="number" step="0.5" placeholder="38" value="${existingVals['m-shalwar-length']||''}">
+            </div>
+            <div class="measurement-field">
+              <label for="m-shalwar-ankle">${ur ? 'پانچہ' : 'Ankle (Poncha)'}</label>
+              <input id="m-shalwar-ankle" type="number" step="0.5" placeholder="10" value="${existingVals['m-shalwar-ankle']||''}">
+            </div>
+          </div>
+
+          <div class="section-title" style="margin-top:16px;margin-bottom:8px">✂️ ${ur ? 'اضافی پسند' : 'Style Preferences (Optional)'}</div>
+          <div class="measurement-grid">
+            <div class="measurement-field">
+              <label for="m-neckline">${ur ? 'گلے کا ڈیزائن' : 'Neckline Design'}</label>
+              <select id="m-neckline">
+                <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
+                <option value="v_neck" ${existingVals['m-neckline']==='v_neck'?'selected':''}>V-Neck</option>
+                <option value="round" ${existingVals['m-neckline']==='round'?'selected':''}>Round (Gol)</option>
+                <option value="boat" ${existingVals['m-neckline']==='boat'?'selected':''}>Boat Neck</option>
+                <option value="collar" ${existingVals['m-neckline']==='collar'?'selected':''}>Collar</option>
+                <option value="square" ${existingVals['m-neckline']==='square'?'selected':''}>Square</option>
+              </select>
+            </div>
+            <div class="measurement-field">
+              <label for="m-sleeve-style">${ur ? 'بازو کا انداز' : 'Sleeve Style'}</label>
+              <select id="m-sleeve-style">
+                <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
+                <option value="full" ${existingVals['m-sleeve-style']==='full'?'selected':''}>Full</option>
+                <option value="3_4" ${existingVals['m-sleeve-style']==='3_4'?'selected':''}>3/4</option>
+                <option value="bell" ${existingVals['m-sleeve-style']==='bell'?'selected':''}>Bell</option>
+                <option value="sleeveless" ${existingVals['m-sleeve-style']==='sleeveless'?'selected':''}>Sleeveless</option>
+                <option value="puff" ${existingVals['m-sleeve-style']==='puff'?'selected':''}>Puff</option>
+              </select>
+            </div>
+            <div class="measurement-field">
+              <label for="m-bottom-style">${ur ? 'شلوار / ٹراؤزر کا انداز' : 'Bottom Style'}</label>
+              <select id="m-bottom-style">
+                <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
+                <option value="shalwar" ${existingVals['m-bottom-style']==='shalwar'?'selected':''}>Shalwar</option>
+                <option value="trouser" ${existingVals['m-bottom-style']==='trouser'?'selected':''}>Trouser</option>
+                <option value="capri" ${existingVals['m-bottom-style']==='capri'?'selected':''}>Capri</option>
+                <option value="plazo" ${existingVals['m-bottom-style']==='plazo'?'selected':''}>Plazo</option>
+              </select>
+            </div>
+            <div class="measurement-field">
+              <label for="m-fit-ladies">${ur ? 'فٹنگ' : 'Fit'}</label>
+              <select id="m-fit-ladies">
+                <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
+                <option value="fitted" ${existingVals['m-fit-ladies']==='fitted'?'selected':''}>Fitted</option>
+                <option value="a_line" ${existingVals['m-fit-ladies']==='a_line'?'selected':''}>A-line</option>
+                <option value="loose" ${existingVals['m-fit-ladies']==='loose'?'selected':''}>Loose</option>
+              </select>
+            </div>
+            <div class="measurement-field">
+              <label for="m-piping-lace">${ur ? 'پائپنگ / لیس' : 'Piping/Lace'}</label>
+              <select id="m-piping-lace">
+                <option value="">${ur ? 'منتخب کریں' : 'Select...'}</option>
+                <option value="yes" ${existingVals['m-piping-lace']==='yes'?'selected':''}>Yes</option>
+                <option value="no" ${existingVals['m-piping-lace']==='no'?'selected':''}>No</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top:12px;margin-bottom:0">
+            <label class="form-label" for="m-notes">${ur ? 'اضافی نوٹ' : 'Measurement Notes'}</label>
+            <textarea class="form-control" id="m-notes" rows="2" placeholder="${ur ? 'خصوصی نوٹ...' : 'Any special notes...'}">${existingVals['m-notes']||''}</textarea>
+          </div>
+        </div>`;
+    }
+  }
 
   function openAddCustomer(prefill = {}) {
     const lang = I18n.getLang();
@@ -202,23 +353,31 @@ const Modals = (() => {
       const el = document.getElementById(id);
       if (el) el.value = val || '';
     };
-    fillField('m-chest',       m.chest);
-    fillField('m-waist',       m.waist);
-    fillField('m-shoulder',    m.shoulder);
-    fillField('m-sleeve',      m.sleeve);
-    fillField('m-neck',        m.neck);
-    fillField('m-trouser',     m.trouser);
-    fillField('m-thigh',       m.thigh);
+    // Shared fields
+    fillField('m-length',        m.length);
+    fillField('m-shoulder',      m.shoulder);
+    fillField('m-chest',         m.chest);
+    fillField('m-waist',         m.waist);
+    fillField('m-arm',           m.arm);
+    fillField('m-shalwar-length',m.shalwar_length);
+    fillField('m-shalwar-ankle', m.shalwar_ankle);
+    fillField('m-notes',         m.notes);
     if (gender === 'gents') {
-      fillField('m-shirt-length', m.shirt_length);
-      fillField('m-knee',         m.knee);
+      fillField('m-neck',         m.neck);
+      fillField('m-collar-type',  m.collar_type);
+      fillField('m-cuff-style',   m.cuff_style);
+      fillField('m-pocket-style', m.pocket_style);
+      fillField('m-fit-gents',    m.fit_gents);
+      fillField('m-shalwar-cut',  m.shalwar_cut);
     } else {
-      fillField('m-hips',        m.hips);
-      fillField('m-full-length', m.full_length);
-      fillField('m-daman',       m.daman);
-      fillField('m-calf',        m.calf);
+      fillField('m-hips',         m.hips);
+      fillField('m-armhole',      m.armhole);
+      fillField('m-neckline',     m.neckline);
+      fillField('m-sleeve-style', m.sleeve_style);
+      fillField('m-bottom-style', m.bottom_style);
+      fillField('m-fit-ladies',   m.fit_ladies);
+      fillField('m-piping-lace',  m.piping_lace);
     }
-    fillField('m-notes', m.notes);
     openOverlay('modal-customer');
   }
 
@@ -240,26 +399,35 @@ const Modals = (() => {
     if (!name)  { Utils.toast(lang === 'ur' ? 'نام ضروری ہے' : 'Name is required',  'error'); return; }
     if (!phone) { Utils.toast(lang === 'ur' ? 'فون ضروری ہے' : 'Phone is required', 'error'); return; }
 
-    const getVal = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+    const getVal  = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+    const getSel  = id => { const el = document.getElementById(id); return el ? el.value : ''; };
 
     const measurements = {
-      chest:        getVal('m-chest'),
-      waist:        getVal('m-waist'),
-      shoulder:     getVal('m-shoulder'),
-      sleeve:       getVal('m-sleeve'),
-      neck:         getVal('m-neck'),
-      trouser:      getVal('m-trouser'),
-      thigh:        getVal('m-thigh'),
-      notes:        getVal('m-notes'),
+      // Shared
+      length:        getVal('m-length'),
+      shoulder:      getVal('m-shoulder'),
+      chest:         getVal('m-chest'),
+      waist:         getVal('m-waist'),
+      arm:           getVal('m-arm'),
+      shalwar_length:getVal('m-shalwar-length'),
+      shalwar_ankle: getVal('m-shalwar-ankle'),
+      notes:         getVal('m-notes'),
     };
     if (gender === 'gents') {
-      measurements.shirt_length = getVal('m-shirt-length');
-      measurements.knee         = getVal('m-knee');
+      measurements.neck         = getVal('m-neck');
+      measurements.collar_type  = getSel('m-collar-type');
+      measurements.cuff_style   = getSel('m-cuff-style');
+      measurements.pocket_style = getSel('m-pocket-style');
+      measurements.fit_gents    = getSel('m-fit-gents');
+      measurements.shalwar_cut  = getSel('m-shalwar-cut');
     } else {
-      measurements.hips        = getVal('m-hips');
-      measurements.full_length = getVal('m-full-length');
-      measurements.daman       = getVal('m-daman');
-      measurements.calf        = getVal('m-calf');
+      measurements.hips         = getVal('m-hips');
+      measurements.armhole      = getVal('m-armhole');
+      measurements.neckline     = getSel('m-neckline');
+      measurements.sleeve_style = getSel('m-sleeve-style');
+      measurements.bottom_style = getSel('m-bottom-style');
+      measurements.fit_ladies   = getSel('m-fit-ladies');
+      measurements.piping_lace  = getSel('m-piping-lace');
     }
 
     const data = { name, phone, gender, address: document.getElementById('c-address').value.trim(), measurements };
@@ -613,18 +781,54 @@ const Modals = (() => {
 
       <!-- Measurements Tab -->
       <div id="tab-measurements" class="profile-tab-panel active" style="padding:16px">
-        ${Object.entries({Chest:m.chest,Waist:m.waist,Hips:m.hips,Shoulder:m.shoulder,
-                          Sleeve:m.sleeve,Length:m.length,Neck:m.neck,Thigh:m.thigh})
-          .filter(([,v]) => v)
-          .map(([k,v]) => `
+        ${(() => {
+          const gender = customer.gender || 'gents';
+          const t = (en, ur2) => lang === 'ur' ? ur2 : en;
+          const row = (label, val) => val ? `
             <div class="info-row" style="background:var(--surface);border-radius:var(--r-md);
                  margin-bottom:8px;border:1px solid var(--border-light);padding:10px 14px">
-              <span style="font-size:.78rem;color:var(--text-3);width:90px;flex-shrink:0">${k}</span>
-              <span style="font-weight:600;font-size:.9rem">${Utils.esc(v)}"</span>
-            </div>`).join('') || '<div style="color:var(--text-4);font-size:.85rem;padding:8px">No measurements recorded yet.</div>'}
+              <span style="font-size:.78rem;color:var(--text-3);width:110px;flex-shrink:0">${label}</span>
+              <span style="font-weight:600;font-size:.9rem">${Utils.esc(String(val))}&quot;</span>
+            </div>` : '';
+          const rowTxt = (label, val) => val ? `
+            <div class="info-row" style="background:var(--surface-2);border-radius:var(--r-md);
+                 margin-bottom:8px;border:1px solid var(--border-light);padding:10px 14px">
+              <span style="font-size:.78rem;color:var(--text-3);width:110px;flex-shrink:0">${label}</span>
+              <span style="font-weight:600;font-size:.88rem;color:var(--primary)">${Utils.esc(String(val))}</span>
+            </div>` : '';
+
+          let html = '';
+          // Shared measurements
+          html += row(t('Length','لمبائی'),    m.length);
+          html += row(t('Shoulder','کندھا'),   m.shoulder);
+          html += row(t('Chest','چھاتی'),      m.chest);
+          html += row(t('Waist','کمر'),        m.waist);
+          html += row(t('Arm/Sleeve','بازو'),  m.arm);
+          html += row(t('Shalwar Len.','شلوار'),m.shalwar_length);
+          html += row(t('Ankle','پانچہ'),      m.shalwar_ankle);
+
+          if (gender === 'gents') {
+            html += row(t('Neck','گلا'),         m.neck);
+            html += rowTxt(t('Collar','کالر'),   m.collar_type);
+            html += rowTxt(t('Cuff','کف'),       m.cuff_style);
+            html += rowTxt(t('Pocket','جیب'),    m.pocket_style);
+            html += rowTxt(t('Fit','فٹنگ'),      m.fit_gents);
+            html += rowTxt(t('Shalwar Cut','شلوار کٹ'), m.shalwar_cut);
+          } else {
+            html += row(t('Hips','ہپ'),          m.hips);
+            html += row(t('Armhole','مونڈھا'),   m.armhole);
+            html += rowTxt(t('Neckline','گلا'),  m.neckline);
+            html += rowTxt(t('Sleeve','بازو'),   m.sleeve_style);
+            html += rowTxt(t('Bottom','شلوار'),  m.bottom_style);
+            html += rowTxt(t('Fit','فٹنگ'),      m.fit_ladies);
+            html += rowTxt(t('Piping','پائپنگ'), m.piping_lace);
+          }
+          if (!html) html = `<div style="color:var(--text-4);font-size:.85rem;padding:8px">${lang==='ur'?'ابھی کوئی پیمائش نہیں':'No measurements recorded yet.'}</div>`;
+          return html;
+        })()}
         ${m.notes ? `
           <div style="background:var(--accent-light);border-radius:var(--r-md);padding:12px;margin-top:8px;border:1px solid var(--primary-light)">
-            <div style="font-size:.72rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Notes</div>
+            <div style="font-size:.72rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">${lang==='ur'?'نوٹ':'Notes'}</div>
             <div style="font-size:.85rem;color:var(--text)">${Utils.esc(m.notes)}</div>
           </div>` : ''}
       </div>

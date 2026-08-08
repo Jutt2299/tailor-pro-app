@@ -69,23 +69,35 @@ const DB = (() => {
       address: (data.address || '').trim(),
       gender:  data.gender || 'gents',
       measurements: {
-        // Common
-        chest:    data.measurements?.chest    || '',
-        waist:    data.measurements?.waist    || '',
-        shoulder: data.measurements?.shoulder || '',
-        sleeve:   data.measurements?.sleeve   || '',
-        neck:     data.measurements?.neck     || '',
-        // Gents specific
-        shirt_length: data.measurements?.shirt_length || '',
-        trouser:      data.measurements?.trouser      || '',
-        thigh:        data.measurements?.thigh        || '',
-        knee:         data.measurements?.knee         || '',
-        // Ladies specific
-        hips:       data.measurements?.hips       || '',
-        full_length:data.measurements?.full_length || '',
-        daman:      data.measurements?.daman      || '',
-        calf:       data.measurements?.calf       || '',
-        notes:      data.measurements?.notes      || '',
+        // Legacy fallback support for older local data
+        ...(typeof data.measurements === 'string' ? { notes: data.measurements } : data.measurements),
+        // Shared
+        length:     data.measurements?.length     || data.measurements?.shirt_length || data.measurements?.full_length || '',
+        shoulder:   data.measurements?.shoulder   || '',
+        chest:      data.measurements?.chest      || '',
+        waist:      data.measurements?.waist      || '',
+        arm:        data.measurements?.arm        || data.measurements?.sleeve || '',
+        shalwar_length: data.measurements?.shalwar_length || data.measurements?.trouser || '',
+        shalwar_ankle:  data.measurements?.shalwar_ankle  || '',
+        
+        // Gents
+        neck:         data.measurements?.neck         || '',
+        collar_type:  data.measurements?.collar_type  || '',
+        cuff_style:   data.measurements?.cuff_style   || '',
+        pocket_style: data.measurements?.pocket_style || '',
+        fit_gents:    data.measurements?.fit_gents    || '',
+        shalwar_cut:  data.measurements?.shalwar_cut  || '',
+        
+        // Ladies
+        hips:         data.measurements?.hips         || '',
+        armhole:      data.measurements?.armhole      || '',
+        neckline:     data.measurements?.neckline     || '',
+        sleeve_style: data.measurements?.sleeve_style || '',
+        bottom_style: data.measurements?.bottom_style || '',
+        fit_ladies:   data.measurements?.fit_ladies   || '',
+        piping_lace:  data.measurements?.piping_lace  || '',
+        
+        notes:        data.measurements?.notes        || '',
       },
       is_deleted: false,
       created_at: Utils.nowISO(),
@@ -109,20 +121,8 @@ const DB = (() => {
       address: (data.address || '').trim(),
       gender:  data.gender || customers[idx].gender || 'gents',
       measurements: {
-        chest:        data.measurements?.chest        || '',
-        waist:        data.measurements?.waist        || '',
-        shoulder:     data.measurements?.shoulder     || '',
-        sleeve:       data.measurements?.sleeve       || '',
-        neck:         data.measurements?.neck         || '',
-        shirt_length: data.measurements?.shirt_length || '',
-        trouser:      data.measurements?.trouser      || '',
-        thigh:        data.measurements?.thigh        || '',
-        knee:         data.measurements?.knee         || '',
-        hips:         data.measurements?.hips         || '',
-        full_length:  data.measurements?.full_length  || '',
-        daman:        data.measurements?.daman        || '',
-        calf:         data.measurements?.calf         || '',
-        notes:        data.measurements?.notes        || '',
+        ...(typeof customers[idx].measurements === 'string' ? { notes: customers[idx].measurements } : customers[idx].measurements),
+        ...data.measurements
       },
       updated_at: Utils.nowISO(),
       sync_status: customers[idx].sync_status === 'pending_insert' ? 'pending_insert' : 'pending_update'
